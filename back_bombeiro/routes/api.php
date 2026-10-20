@@ -9,6 +9,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FinancialCategoryController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\LogAcessoController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatrimonioController;
 use App\Http\Controllers\RevenueController;
@@ -33,6 +34,7 @@ Route::get('/associado/login', function () {
         'message' => 'Método não permitido. Use POST para realizar o login.',
     ], 405);
 });
+Route::post('/associado/logout', [App\Http\Controllers\AssociadoController::class, 'logout']);
 Route::get('/associado', [App\Http\Controllers\AssociadoController::class, 'show']);
 Route::put('/associado', [App\Http\Controllers\AssociadoController::class, 'update']);
 Route::get('/associado/mensalidades', [App\Http\Controllers\AssociadoController::class, 'mensalidades']);
@@ -96,6 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/auditoria/pagamentos', [AuditoriaController::class, 'pagamentos']);
     Route::post('/admin/auditoria/pagamentos', [AuditoriaController::class, 'store']);
     Route::delete('/admin/auditoria/pagamentos/{pagamentoTransacao}', [AuditoriaController::class, 'destroy']);
+    Route::get('/admin/logs-acesso', [LogAcessoController::class, 'index']);
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::put('/notifications/read', [NotificationController::class, 'markAsRead']);
 });

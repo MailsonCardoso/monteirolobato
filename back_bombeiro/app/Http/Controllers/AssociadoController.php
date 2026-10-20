@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Aluno;
 use App\Models\Associado;
+use App\Models\LogAcesso;
 use App\Models\Mensalidade;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AssociadoController extends Controller
@@ -35,6 +37,8 @@ class AssociadoController extends Controller
 
         $token = Str::random(60);
         $associado->forceFill(['api_token' => $token])->save();
+
+        $this->registrarLogAcesso($request, LogAcesso::EVENTO_CADASTRO, $associado);
 
         $alunos = $this->buscarTodosAlunosPorCpf($associado->cpf);
 
@@ -66,6 +70,14 @@ class AssociadoController extends Controller
         $associado = Associado::where('email', $request->email)->first();
 
         if (!$associado) {
+            $this->registrarLogAcesso(
+                $request,
+                LogAcesso::EVENTO_LOGIN_FALHA,
+                null,
+                $request->email,
+                'email_nao_encontrado'
+            );
+
             return response()->json([
                 'success' => false,
                 'message' => 'E-mail ou senha inválidos.',
@@ -94,6 +106,14 @@ class AssociadoController extends Controller
         }
 
         if (!$match) {
+            $this->registrarLogAcesso(
+                $request,
+                LogAcesso::EVENTO_LOGIN_FALHA,
+                $associado,
+                null,
+                'senha_invalida'
+            );
+
             return response()->json([
                 'success' => false,
                 'message' => 'E-mail ou senha inválidos.',
@@ -110,6 +130,8 @@ class AssociadoController extends Controller
 
         $token = Str::random(60);
         $associado->forceFill(['api_token' => $token])->save();
+
+        $this->registrarLogAcesso($request, LogAcesso::EVENTO_LOGIN, $associado);
 
         $alunos = $this->buscarTodosAlunosPorCpf($associado->cpf);
 
@@ -128,6 +150,21 @@ class AssociadoController extends Controller
                 'created_at' => $associado->created_at->format('d/m/Y'),
             ],
             'token' => $token,
+        ]);
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $associado = $this->getAuthenticated($request);
+
+        if ($associado) {
+            $this->registrarLogAcesso($request, LogAcesso::EVENTO_LOGOUT, $associado);
+            $associado->forceFill(['api_token' => null])->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sessão encerrada com sucesso.',
         ]);
     }
 
@@ -330,5 +367,31 @@ class AssociadoController extends Controller
         $token = $request->bearerToken();
         if (!$token) return null;
         return Associado::where('api_token', $token)->first();
+    }
+
+    private function registrarLogAcesso(
+        Request $request,
+        string $evento,
+        ?Associado $associado = null,
+        ?string $email = null,
+        ?string $motivo = null
+    ): void {
+        try {
+            LogAcesso::create([
+                'associado_id' => $associado?->id,
+                'nome' => $associado?->nome,
+                'email' => $associado?->email ?? $email,
+                'cpf' => $associado?->cpf,
+                'evento' => $evento,
+                'motivo' => $motivo,
+                'ip' => $request->ip(),
+                'user_agent' => mb_substr((string) $request->userAgent(), 0, 500),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Falha ao registrar log de acesso', [
+                'evento' => $evento,
+                'erro' => $e->getMessage(),
+            ]);
+        }
     }
 }

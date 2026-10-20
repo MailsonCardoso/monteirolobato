@@ -56,6 +56,14 @@ export async function getAssociado(): Promise<AssociadoResponse> {
   return data;
 }
 
+export async function logoutAssociado(): Promise<void> {
+  try {
+    await api.post("/associado/logout");
+  } catch {
+    // a sessão local é encerrada mesmo que o registro remoto falhe
+  }
+}
+
 export async function updateAssociado(
   payload: Partial<CadastroPayload>
 ): Promise<AssociadoResponse> {

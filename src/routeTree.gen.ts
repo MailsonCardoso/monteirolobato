@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as InadimplentesRouteImport } from './routes/inadimplentes'
 import { Route as GestaoOuvidoriaRouteImport } from './routes/gestao-ouvidoria'
 import { Route as GestaoNoticiasRouteImport } from './routes/gestao-noticias'
+import { Route as GestaoLogsAcessoRouteImport } from './routes/gestao-logs-acesso'
 import { Route as GestaoInventarioRouteImport } from './routes/gestao-inventario'
 import { Route as GestaoFuncionariosRouteImport } from './routes/gestao-funcionarios'
 import { Route as GestaoEstatutoRouteImport } from './routes/gestao-estatuto'
@@ -75,6 +76,11 @@ const GestaoOuvidoriaRoute = GestaoOuvidoriaRouteImport.update({
 const GestaoNoticiasRoute = GestaoNoticiasRouteImport.update({
   id: '/gestao-noticias',
   path: '/gestao-noticias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GestaoLogsAcessoRoute = GestaoLogsAcessoRouteImport.update({
+  id: '/gestao-logs-acesso',
+  path: '/gestao-logs-acesso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GestaoInventarioRoute = GestaoInventarioRouteImport.update({
@@ -215,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/gestao-estatuto': typeof GestaoEstatutoRoute
   '/gestao-funcionarios': typeof GestaoFuncionariosRoute
   '/gestao-inventario': typeof GestaoInventarioRoute
+  '/gestao-logs-acesso': typeof GestaoLogsAcessoRoute
   '/gestao-noticias': typeof GestaoNoticiasRoute
   '/gestao-ouvidoria': typeof GestaoOuvidoriaRoute
   '/inadimplentes': typeof InadimplentesRoute
@@ -245,6 +252,7 @@ export interface FileRoutesByTo {
   '/gestao-estatuto': typeof GestaoEstatutoRoute
   '/gestao-funcionarios': typeof GestaoFuncionariosRoute
   '/gestao-inventario': typeof GestaoInventarioRoute
+  '/gestao-logs-acesso': typeof GestaoLogsAcessoRoute
   '/gestao-noticias': typeof GestaoNoticiasRoute
   '/gestao-ouvidoria': typeof GestaoOuvidoriaRoute
   '/inadimplentes': typeof InadimplentesRoute
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/gestao-estatuto': typeof GestaoEstatutoRoute
   '/gestao-funcionarios': typeof GestaoFuncionariosRoute
   '/gestao-inventario': typeof GestaoInventarioRoute
+  '/gestao-logs-acesso': typeof GestaoLogsAcessoRoute
   '/gestao-noticias': typeof GestaoNoticiasRoute
   '/gestao-ouvidoria': typeof GestaoOuvidoriaRoute
   '/inadimplentes': typeof InadimplentesRoute
@@ -316,6 +325,7 @@ export interface FileRouteTypes {
     | '/gestao-estatuto'
     | '/gestao-funcionarios'
     | '/gestao-inventario'
+    | '/gestao-logs-acesso'
     | '/gestao-noticias'
     | '/gestao-ouvidoria'
     | '/inadimplentes'
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/gestao-estatuto'
     | '/gestao-funcionarios'
     | '/gestao-inventario'
+    | '/gestao-logs-acesso'
     | '/gestao-noticias'
     | '/gestao-ouvidoria'
     | '/inadimplentes'
@@ -380,6 +391,7 @@ export interface FileRouteTypes {
     | '/gestao-estatuto'
     | '/gestao-funcionarios'
     | '/gestao-inventario'
+    | '/gestao-logs-acesso'
     | '/gestao-noticias'
     | '/gestao-ouvidoria'
     | '/inadimplentes'
@@ -415,6 +427,7 @@ export interface RootRouteChildren {
   GestaoEstatutoRoute: typeof GestaoEstatutoRoute
   GestaoFuncionariosRoute: typeof GestaoFuncionariosRoute
   GestaoInventarioRoute: typeof GestaoInventarioRoute
+  GestaoLogsAcessoRoute: typeof GestaoLogsAcessoRoute
   GestaoNoticiasRoute: typeof GestaoNoticiasRoute
   GestaoOuvidoriaRoute: typeof GestaoOuvidoriaRoute
   InadimplentesRoute: typeof InadimplentesRoute
@@ -474,6 +487,13 @@ declare module '@tanstack/react-router' {
       path: '/gestao-noticias'
       fullPath: '/gestao-noticias'
       preLoaderRoute: typeof GestaoNoticiasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gestao-logs-acesso': {
+      id: '/gestao-logs-acesso'
+      path: '/gestao-logs-acesso'
+      fullPath: '/gestao-logs-acesso'
+      preLoaderRoute: typeof GestaoLogsAcessoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gestao-inventario': {
@@ -719,6 +739,7 @@ const rootRouteChildren: RootRouteChildren = {
   GestaoEstatutoRoute: GestaoEstatutoRoute,
   GestaoFuncionariosRoute: GestaoFuncionariosRoute,
   GestaoInventarioRoute: GestaoInventarioRoute,
+  GestaoLogsAcessoRoute: GestaoLogsAcessoRoute,
   GestaoNoticiasRoute: GestaoNoticiasRoute,
   GestaoOuvidoriaRoute: GestaoOuvidoriaRoute,
   InadimplentesRoute: InadimplentesRoute,

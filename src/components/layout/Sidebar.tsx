@@ -20,6 +20,7 @@ import {
   TrendingDown,
   ShieldCheck,
   KeyRound,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
@@ -69,6 +70,7 @@ const sections: NavSection[] = [
       { to: "/gestao-documentos", label: "Documentos", icon: FileText },
       { to: "/gestao-estatuto", label: "Estatuto", icon: ScrollText },
       { to: "/gestao-auditoria", label: "Auditoria", icon: ShieldCheck },
+      { to: "/gestao-logs-acesso", label: "Logs de Acesso", icon: Activity },
       { to: "/gestao-funcionarios", label: "Funcionários", icon: Users },
     ],
   },

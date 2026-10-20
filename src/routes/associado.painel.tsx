@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { brl } from "@/lib/format";
-import { getAssociado, type AssociadoData } from "@/lib/api/associado";
+import { getAssociado, logoutAssociado, type AssociadoData } from "@/lib/api/associado";
 import {
   fetchAssociadoMensalidades,
   gerarCobrancaMensalidade,
@@ -101,7 +101,8 @@ function PainelAssociado() {
       });
   }, [navigate]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logoutAssociado();
     localStorage.removeItem("associado_token");
     localStorage.removeItem("associado_data");
     toast.success("Sessão encerrada.");
