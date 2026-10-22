@@ -66,7 +66,7 @@ class AlunoController extends Controller
             return $aluno;
         });
 
-        $this->sincronizarEmailAssociado($aluno);
+        $this->sincronizarAssociado($aluno);
 
         return $aluno->load('mensalidades');
     }
@@ -134,8 +134,10 @@ class AlunoController extends Controller
             'ano_letivo' => 'nullable|string|max:4',
         ]);
 
+        $cpfResponsavelAnterior = $aluno->cpf_responsavel;
+
         $aluno->update($validated);
-        $this->sincronizarEmailAssociado($aluno);
+        $this->sincronizarAssociado($aluno, $cpfResponsavelAnterior);
         return $aluno;
     }
 
@@ -162,18 +164,55 @@ class AlunoController extends Controller
         return response()->noContent();
     }
 
-    private function sincronizarEmailAssociado(Aluno $aluno): void
+    private function sincronizarAssociado(Aluno $aluno, ?string $cpfResponsavelAnterior = null): void
     {
-        $cpf = $aluno->cpf_responsavel;
-        if (empty($cpf)) return;
+        $cpfAtual = preg_replace('/\D/', '', (string) $aluno->cpf_responsavel);
+        $cpfAnterior = preg_replace('/\D/', '', (string) $cpfResponsavelAnterior);
+
+        if ($cpfAtual === '' && $cpfAnterior === '') return;
+
+        $associado = Associado::where('aluno_id', $aluno->id)->first();
+
+        if (!$associado) {
+            $cpfsBusca = array_values(array_unique(array_filter([$cpfAnterior, $cpfAtual])));
+
+            if (!empty($cpfsBusca)) {
+                $associado = Associado::whereIn('cpf', $cpfsBusca)->first();
+            }
+        }
+
+        if (!$associado) return;
+
+        $dados = [];
+
+        if (!empty($aluno->responsavel) && $associado->nome !== $aluno->responsavel) {
+            $dados['nome'] = $aluno->responsavel;
+        }
+
+        if ($cpfAtual !== '' && $associado->cpf !== $cpfAtual) {
+            $cpfEmUso = Associado::where('cpf', $cpfAtual)
+                ->where('id', '!=', $associado->id)
+                ->exists();
+
+            if (!$cpfEmUso) {
+                $dados['cpf'] = $cpfAtual;
+            }
+        }
 
         $email = $aluno->email_responsavel ?? $aluno->email;
-        if (empty($email)) return;
 
-        $cpfLimpo = preg_replace('/\D/', '', $cpf);
+        if (!empty($email) && $associado->email !== $email) {
+            $emailEmUso = Associado::where('email', $email)
+                ->where('id', '!=', $associado->id)
+                ->exists();
 
-        Associado::where('cpf', $cpfLimpo)
-            ->where('email', '!=', $email)
-            ->update(['email' => $email]);
+            if (!$emailEmUso) {
+                $dados['email'] = $email;
+            }
+        }
+
+        if (!empty($dados)) {
+            $associado->forceFill($dados)->save();
+        }
     }
 }
