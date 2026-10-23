@@ -145,6 +145,8 @@ export function AlunoSheet({
       ? undefined
       : {
           ...current,
+          cpf: current.cpf ? maskCPF(current.cpf) : "",
+          cpfResponsavel: current.cpfResponsavel ? maskCPF(current.cpfResponsavel) : "",
           valorMensalidade: current.valorMensalidade ?? 0,
           diaVencimento: current.diaVencimento ?? 10,
           dataNascimento: current.dataNascimento?.includes("/")
