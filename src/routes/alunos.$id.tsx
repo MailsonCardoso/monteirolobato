@@ -104,8 +104,10 @@ function AlunoDetalhe() {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     values: aluno
-      ? {
+        ? {
           ...aluno,
+          cpf: aluno.cpf ? maskCPF(aluno.cpf) : "",
+          cpfResponsavel: aluno.cpfResponsavel ? maskCPF(aluno.cpfResponsavel) : "",
           dataNascimento: aluno.dataNascimento?.includes("/")
             ? aluno.dataNascimento
             : fmtDate(aluno.dataNascimento),
