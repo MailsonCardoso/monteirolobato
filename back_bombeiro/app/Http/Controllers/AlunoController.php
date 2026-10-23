@@ -8,6 +8,7 @@ use App\Models\Mensalidade;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class AlunoController extends Controller
@@ -196,6 +197,12 @@ class AlunoController extends Controller
 
             if (!$cpfEmUso) {
                 $dados['cpf'] = $cpfAtual;
+
+                $cpfAntigo = preg_replace('/\D/', '', (string) $associado->cpf);
+
+                if ($cpfAntigo !== '' && $this->senhaDerivadaDoCpf($associado->password, $cpfAntigo)) {
+                    $dados['password'] = $cpfAtual;
+                }
             }
         }
 
@@ -214,5 +221,18 @@ class AlunoController extends Controller
         if (!empty($dados)) {
             $associado->forceFill($dados)->save();
         }
+    }
+
+    private function senhaDerivadaDoCpf(?string $hash, string $cpf): bool
+    {
+        if (empty($hash)) {
+            return false;
+        }
+
+        if (Hash::check($cpf, $hash)) {
+            return true;
+        }
+
+        return strlen($cpf) >= 6 && Hash::check(substr($cpf, 0, 6), $hash);
     }
 }
