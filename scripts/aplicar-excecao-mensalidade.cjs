@@ -1,7 +1,7 @@
 const axios = require('axios');
 const readline = require('readline');
 
-const BASE_URL = process.env.EDU_API_URL || 'https://api5.platformx.com.br/api';
+const BASE_URL = process.env.EDU_API_URL || 'https://api2.platformx.com.br/api';
 const NOME_ALVO = 'joao miguel amorim campo';
 const VALOR_EXCECAO = 50;
 const STATUS_ALVO = new Set(['pendente', 'atrasado']);

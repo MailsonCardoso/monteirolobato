@@ -166,9 +166,9 @@ class MercadoPagoService
                 ],
             ],
             'back_urls' => [
-                'success' => 'https://api5.platformx.com.br/associado/painel?tab=pagamentos',
-                'failure' => 'https://api5.platformx.com.br/associado/painel?tab=pagamentos',
-                'pending' => 'https://api5.platformx.com.br/associado/painel?tab=pagamentos',
+                'success' => 'https://apacmcb2.platformx.com.br/associado/painel?tab=pagamentos',
+                'failure' => 'https://apacmcb2.platformx.com.br/associado/painel?tab=pagamentos',
+                'pending' => 'https://apacmcb2.platformx.com.br/associado/painel?tab=pagamentos',
             ],
         ];
 
