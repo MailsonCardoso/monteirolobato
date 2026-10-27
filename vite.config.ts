@@ -15,9 +15,9 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "favicon.png", "logotipo.jpeg"],
       manifest: {
-        name: "APA CMCB XII",
-        short_name: "APA CMCB",
-        description: "Área do Associado - APA CMCB XII",
+        name: "2 de Julho",
+        short_name: "2 de Julho",
+        description: "Portal do Associado - 2 de Julho",
         theme_color: "#D62828",
         background_color: "#ffffff",
         display: "standalone",
