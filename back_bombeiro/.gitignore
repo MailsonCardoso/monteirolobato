@@ -10,6 +10,7 @@
 .env.mysql.backup
 .env.production
 test_db.php
+setup_admin_e_sessions.php
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
