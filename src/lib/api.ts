@@ -2,7 +2,10 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "https://api2.platformx.com.br/api",
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+  },
 });
 
 api.interceptors.request.use((config) => {
@@ -17,9 +20,10 @@ api.interceptors.request.use((config) => {
     url.startsWith("/mensalidades/") && url.includes("/status-pagamento");
   (config as any)._isAssociado = isAssociadoRoute;
   if (!isPublic) {
+    // Cada contexto utiliza seu token respectivo para não causar conflito de autenticação
     const token = isAssociadoRoute
-      ? localStorage.getItem("associado_token") || localStorage.getItem("edu_token")
-      : localStorage.getItem("edu_token") || localStorage.getItem("associado_token");
+      ? localStorage.getItem("associado_token")
+      : localStorage.getItem("edu_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -51,7 +55,7 @@ api.interceptors.response.use(
       }
 
       localStorage.removeItem("edu_token");
-      if (!isSiteRoute) {
+      if (!isSiteRoute && !pathname.startsWith("/associado")) {
         window.location.href = "/login";
       }
     }
