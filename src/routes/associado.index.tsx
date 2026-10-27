@@ -5,7 +5,7 @@ import {
   Eye,
   EyeOff,
   Shield,
-  CreditCard,
+  QrCode,
   FileText,
   Lock,
   Mail,
@@ -148,16 +148,16 @@ function AssociadoLoginScreen() {
           </h1>
 
           <p className="mt-4 text-base sm:text-lg text-white/85 leading-relaxed">
-            Consulte mensalidades, gere pagamentos via PIX ou boleto bancário e acesse seus
+            Consulte mensalidades, gere pagamentos via PIX e acesse seus
             comprovantes em um ambiente exclusivo e seguro.
           </p>
 
           {/* Destaques / Benefícios */}
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/10 backdrop-blur border border-white/15">
-              <CreditCard className="size-5 text-amber-300 shrink-0" />
+              <QrCode className="size-5 text-amber-300 shrink-0" />
               <div className="text-xs">
-                <p className="font-semibold text-white">PIX & Boleto</p>
+                <p className="font-semibold text-white">Pagamento PIX</p>
                 <p className="text-white/70">Baixa imediata</p>
               </div>
             </div>
