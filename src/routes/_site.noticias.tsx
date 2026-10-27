@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_site/noticias")({
 });
 
 const fallbackNews = [
-  { title: "Nova diretoria toma posse e inicia processo de regularização", summary: "A nova gestão da APA CMCB XII iniciou os trabalhos com foco em transparência, reconstrução institucional e regularização documental de todos os processos.", published_at: "10 Jun 2026", category: "Comunicados", image: null },
+  { title: "Nova diretoria toma posse e inicia processo de regularização", summary: "A nova gestão da APA CMCB XLI — Monteiro Lobato iniciou os trabalhos com foco em transparência, reconstrução institucional e regularização documental de todos os processos.", published_at: "10 Jun 2026", category: "Comunicados", image: null },
   { title: "Prestação de contas do primeiro trimestre disponível", summary: "Balancete referente ao período de janeiro a março já está disponível no Portal da Transparência para consulta e download dos associados.", published_at: "05 Jun 2026", category: "Transparência", image: null },
   { title: "Assembleia Geral convocada para o dia 30 de julho", summary: "Edital de convocação foi publicado com antecedência. Pauta inclui eleição da diretoria definitiva e aprovação do novo estatuto.", published_at: "01 Jun 2026", category: "Eventos", image: null },
   { title: "Campanha de regularização de associados", summary: "Associados com pendências podem regularizar sua situação com condições especiais até o fim do mês. Procure a secretaria da APA.", published_at: "28 Mai 2026", category: "Comunicados", image: null },
@@ -30,7 +30,7 @@ const fallbackNews = [
   { title: "Oficina de música abre inscrições", summary: "Estão abertas as inscrições para a oficina de música da APA. Vagas limitadas para alunos do 6º ao 9º ano.", published_at: "10 Mai 2026", category: "Projetos", image: null },
   { title: "Resultados da pesquisa de satisfação", summary: "Pesquisa realizada com os associados aponta alto grau de satisfação com as novas medidas de transparência adotadas pela gestão.", published_at: "05 Mai 2026", category: "Comunicados", image: null },
   { title: "Festival de talentos da APA", summary: "Inscrições abertas para o festival de talentos. Alunos podem se inscrever nas categorias música, dança, teatro e artes visuais.", published_at: "28 Abr 2026", category: "Eventos", image: null },
-  { title: "Parceria com universidade local", summary: "Nova parceria firmada com universidade local para oferecer estágios e projetos de extensão aos alunos do CMCB XII.", published_at: "20 Abr 2026", category: "Projetos", image: null },
+  { title: "Parceria com universidade local", summary: "Nova parceria firmada com universidade local para oferecer estágios e projetos de extensão aos alunos do CMCB XLI — Monteiro Lobato.", published_at: "20 Abr 2026", category: "Projetos", image: null },
   { title: "Relatório de auditoria é concluído", summary: "Auditoria independente concluiu os trabalhos. Relatório completo está disponível para consulta dos associados.", published_at: "15 Abr 2026", category: "Transparência", image: null },
   { title: "Doação de livros para biblioteca", summary: "Campanha de doação de livros arrecadou mais de 200 exemplares que serão incorporados ao acervo da biblioteca escolar.", published_at: "10 Abr 2026", category: "Projetos", image: null },
 ];
@@ -88,7 +88,7 @@ function Noticias() {
           </div>
           <h1 className="text-3xl lg:text-4xl font-bold text-white">Últimas Notícias</h1>
           <p className="mt-3 text-lg text-white/70 max-w-2xl mx-auto">
-            Acompanhe as novidades, comunicados e eventos da APA CMCB XII.
+            Acompanhe as novidades, comunicados e eventos da APA CMCB XLI — Monteiro Lobato.
           </p>
         </div>
       </section>

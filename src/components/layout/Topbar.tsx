@@ -60,11 +60,11 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         </div>
         <div className="leading-tight">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Associação de Pais e Amigos
+            2 de Julho
           </span>
           <br />
           <span className="text-sm font-bold text-foreground">
-            CMCB XII — Paraná
+            Unidade XLI — Monteiro Lobato
           </span>
         </div>
       </div>

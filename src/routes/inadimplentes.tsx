@@ -201,7 +201,7 @@ function Inadimplentes() {
                             const phone = a.telefoneResponsavel?.replace(/\D/g, "") || a.telefone?.replace(/\D/g, "");
                             if (!phone) { toast.error("Telefone não encontrado"); return; }
                             const msg = encodeURIComponent(
-                              `Olá! ${a.responsavel || "Responsável"}\n\nLembramos que você possui ${det?.parcelas || 0} fatura(s) em aberto referente ao ${a.sexo === "feminino" ? "aluna" : "aluno"} ${a.nome}, totalizando ${det ? brl(det.total) : "—"}, abaixo o resumo. Caso já tenha pago, desconsidere esta mensagem.\n\nResumo:\n• Mensalidade(s) em aberto: ${det?.parcelas || 0}\n• Valor total: ${det ? brl(det.total) : "—"}\n• Maior atraso: ${det?.maiorAtraso || 0} dias\n\nQualquer dúvida, estamos à disposição!\n\nAtenciosamente,\nAssociação de pais e amigos do CMCBXII`,
+                              `Olá! ${a.responsavel || "Responsável"}\n\nLembramos que você possui ${det?.parcelas || 0} fatura(s) em aberto referente ao ${a.sexo === "feminino" ? "aluna" : "aluno"} ${a.nome}, totalizando ${det ? brl(det.total) : "—"}, abaixo o resumo. Caso já tenha pago, desconsidere esta mensagem.\n\nResumo:\n• Mensalidade(s) em aberto: ${det?.parcelas || 0}\n• Valor total: ${det ? brl(det.total) : "—"}\n• Maior atraso: ${det?.maiorAtraso || 0} dias\n\nQualquer dúvida, estamos à disposição!\n\nAtenciosamente,\n2 de Julho — Unidade XLI — Monteiro Lobato`,
                             );
                             window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank");
                           }}

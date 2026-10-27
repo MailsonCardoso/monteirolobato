@@ -62,7 +62,7 @@ export const ReciboVisual = forwardRef<HTMLDivElement, { mensalidade: Mensalidad
               opacity: 0.85,
             }}
           >
-            Associação de Pais e Amigos do CMCB XII
+            2 de Julho — Unidade XLI — Monteiro Lobato
           </div>
           <div style={{ fontSize: 19, fontWeight: 800, marginTop: 5, letterSpacing: 0.3 }}>
             Recibo de Pagamento

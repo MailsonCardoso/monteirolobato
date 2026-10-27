@@ -51,7 +51,7 @@ function Institucional() {
           </div>
           <h1 className="text-3xl lg:text-4xl font-bold text-white">Quem Somos</h1>
           <p className="mt-3 text-lg text-white/70 max-w-2xl mx-auto">
-            Entidade civil sem fins lucrativos, fundada em 17 de novembro de 2022, dedicada ao apoio educacional, cultural e social dos alunos do Colégio Militar 2 de Julho: Unidade XII.
+            Entidade civil sem fins lucrativos, fundada em 17 de novembro de 2022, dedicada ao apoio educacional, cultural e social dos alunos do Colégio Militar 2 de Julho: Unidade XLI — Monteiro Lobato.
           </p>
         </div>
       </section>
@@ -61,11 +61,11 @@ function Institucional() {
           <div className="max-w-3xl">
             <h2 className="text-2xl lg:text-3xl font-bold text-[#D62828]">Nossa História</h2>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              A <strong>Associação de Pais e Amigos do CMCB XII (APA)</strong> é uma entidade civil de direito privado, sem fins lucrativos, 
+              A <strong>Associação de Pais e Amigos do CMCB XLI — Monteiro Lobato (APA)</strong> é uma entidade civil de direito privado, sem fins lucrativos, 
               fundada em <strong>17 de novembro de 2022</strong>, registrada sob o CNPJ nº 50.264.838/0001-60.
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              Nascemos da iniciativa de pais, mães e responsáveis de alunos do Colégio Militar 2 de Julho – Unidade XII, unidos pelo desejo comum de contribuir ativamente para a qualidade da educação oferecida aos nossos filhos e para o fortalecimento da comunidade escolar.
+              Nascemos da iniciativa de pais, mães e responsáveis de alunos do Colégio Militar 2 de Julho – Unidade XLI — Monteiro Lobato, unidos pelo desejo comum de contribuir ativamente para a qualidade da educação oferecida aos nossos filhos e para o fortalecimento da comunidade escolar.
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
               Somos o elo de união entre as famílias e a escola. Nosso propósito é simples, mas poderoso: trabalhar em benefício dos alunos, apoiando os associados e a comunidade escolar, garantindo que cada recurso seja revertido em melhorias reais para a educação e o bem-estar dos nossos alunos.
@@ -105,7 +105,7 @@ function Institucional() {
                 <Target className="size-6 text-[#D62828] mb-3" />
                 <h3 className="text-base font-semibold text-gray-900">Missão</h3>
                 <p className="text-base text-gray-600 mt-2 leading-relaxed">
-                  Promover o desenvolvimento social, educacional e cultural, oferecendo suporte assistencial aos alunos do Colégio Militar 2 de Julho – Unidade XII e suas famílias, atuando sempre em conformidade com a lei, com a ética e com os princípios da transparência e da governança.
+                  Promover o desenvolvimento social, educacional e cultural, oferecendo suporte assistencial aos alunos do Colégio Militar 2 de Julho – Unidade XLI — Monteiro Lobato e suas famílias, atuando sempre em conformidade com a lei, com a ética e com os princípios da transparência e da governança.
                 </p>
               </div>
               <div className="bg-white rounded-xl border border-gray-100 p-6">
@@ -222,7 +222,7 @@ function Institucional() {
           <FileTextIcon />
           <h2 className="text-2xl lg:text-3xl font-bold mt-6">Estatuto Social</h2>
           <p className="mt-3 text-white/70 max-w-xl mx-auto">
-            Faça o download do estatuto social da APA CMCB XII para consultar nossas normas e regulamentos.
+            Faça o download do estatuto social da APA CMCB XLI — Monteiro Lobato para consultar nossas normas e regulamentos.
           </p>
           {isLoading ? (
             <div className="mt-8 flex justify-center">

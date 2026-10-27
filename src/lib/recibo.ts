@@ -32,7 +32,7 @@ export function gerarPdfBlob(m: Mensalidade): Promise<Blob> {
 
   y += 9;
   doc.setFontSize(8);
-  doc.text("ASSOCIAÇÃO DE PAIS E AMIGOS DO CMCB XII (APA)", ml + cw / 2, y, { align: "center" });
+  doc.text("ASSOCIAÇÃO DE PAIS E AMIGOS DO CMCB XLI — MONTEIRO LOBATO (APA)", ml + cw / 2, y, { align: "center" });
 
   y += 6;
   doc.setFont("times", "normal");

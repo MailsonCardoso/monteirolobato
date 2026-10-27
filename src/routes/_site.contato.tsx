@@ -79,7 +79,7 @@ function Contato() {
                 <MapPin className="size-5 text-[#D62828] mb-2" />
                 <h3 className="text-base font-semibold text-gray-900">Endereço</h3>
                 <p className="text-sm text-gray-500 mt-1 leading-relaxed">
-                  Colégio Militar 2 de Julho – Unidade XII<br />
+                  Colégio Militar 2 de Julho – Unidade XLI — Monteiro Lobato<br />
                   Rua Exemplo, 123 – Bairro<br />
                   Salvador – BA, CEP 40000-000
                 </p>

@@ -355,7 +355,7 @@ function Financeiro() {
     const phone = a?.telefoneResponsavel?.replace(/\D/g, "") || a?.telefone?.replace(/\D/g, "");
     if (!phone) return null;
     const msg = encodeURIComponent(
-      `Olá! ${m.alunoResponsavel || a?.responsavel || "Responsável"}\n\nLembramos que a fatura referente ao ${m.alunoSexo === "feminino" ? "aluna" : "aluno"} ${m.alunoNome || a?.nome || ""} abaixo encontra-se em aberto. Caso já tenha pago, desconsidere esta mensagem.\n\nDetalhes da fatura:\n• Referência: ${m.mesReferencia}\n• Valor: ${brl(m.valor)}\n• Vencimento: ${fmtDate(m.dataVencimento)}\n• Situação: ${m.status === "atrasado" ? "Em atraso" : "Pendente"}\n\nQualquer dúvida, estamos à disposição!\n\nAtenciosamente,\nAssociação de pais e amigos do CMCBXII`,
+      `Olá! ${m.alunoResponsavel || a?.responsavel || "Responsável"}\n\nLembramos que a fatura referente ao ${m.alunoSexo === "feminino" ? "aluna" : "aluno"} ${m.alunoNome || a?.nome || ""} abaixo encontra-se em aberto. Caso já tenha pago, desconsidere esta mensagem.\n\nDetalhes da fatura:\n• Referência: ${m.mesReferencia}\n• Valor: ${brl(m.valor)}\n• Vencimento: ${fmtDate(m.dataVencimento)}\n• Situação: ${m.status === "atrasado" ? "Em atraso" : "Pendente"}\n\nQualquer dúvida, estamos à disposição!\n\nAtenciosamente,\n2 de Julho — Unidade XLI — Monteiro Lobato`,
     );
     return `https://wa.me/55${phone}?text=${msg}`;
   };
@@ -377,7 +377,7 @@ function Financeiro() {
 
     y += 10;
     doc.setFontSize(8);
-    doc.text("ASSOCIAÇÃO DE PAIS E AMIGOS DO CMCB XII (APA)", ml + cw / 2, y, { align: "center" });
+    doc.text("ASSOCIAÇÃO DE PAIS E AMIGOS DO CMCB XLI — MONTEIRO LOBATO (APA)", ml + cw / 2, y, { align: "center" });
 
     y += 6;
     doc.setFont("times", "normal");
