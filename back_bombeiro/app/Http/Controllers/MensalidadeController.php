@@ -23,7 +23,7 @@ class MensalidadeController extends Controller
 
     public function index(Request $request)
     {
-        $query = Mensalidade::with('aluno')->orderBy('created_at', 'desc');
+        $query = Mensalidade::whereHas('aluno')->with('aluno')->orderBy('created_at', 'desc');
 
         if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
@@ -312,6 +312,13 @@ class MensalidadeController extends Controller
             Transaction::where('source_type', 'mensalidade')
                 ->where('source_id', $mensalidade->id)
                 ->delete();
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('pagamento_transacoes')) {
+                DB::table('pagamento_transacoes')->where('mensalidade_id', $mensalidade->id)->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('pagamento_historico')) {
+                DB::table('pagamento_historico')->where('mensalidade_id', $mensalidade->id)->delete();
+            }
 
             $mensalidade->delete();
         });

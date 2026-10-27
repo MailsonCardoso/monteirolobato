@@ -25,9 +25,10 @@ class DashboardController extends Controller
             'atrasado' => ['qtd' => 0, 'total' => 0],
         ];
         Mensalidade::query()
-            ->selectRaw("status, COUNT(*) as qtd, COALESCE(SUM(valor), 0) as total")
-            ->whereIn('status', ['pago', 'pendente', 'atrasado'])
-            ->groupBy('status')
+            ->join('alunos', 'mensalidades.aluno_id', '=', 'alunos.id')
+            ->selectRaw("mensalidades.status, COUNT(*) as qtd, COALESCE(SUM(mensalidades.valor), 0) as total")
+            ->whereIn('mensalidades.status', ['pago', 'pendente', 'atrasado'])
+            ->groupBy('mensalidades.status')
             ->get()
             ->each(function ($item) use (&$resumo) {
                 $resumo[$item->status] = [
@@ -40,11 +41,12 @@ class DashboardController extends Controller
         $alunosInadimplentes = Aluno::whereIn('situacao', ['inadimplente', 'em_atraso'])->count();
 
         $mensalidadesPorMes = Mensalidade::query()
-            ->selectRaw("DATE_FORMAT(data_pagamento, '%Y-%m') as mes, COALESCE(SUM(valor), 0) as total")
-            ->where('status', 'pago')
-            ->whereNotNull('data_pagamento')
-            ->whereBetween('data_pagamento', [$inicioJanela, $fimJanela])
-            ->groupByRaw("DATE_FORMAT(data_pagamento, '%Y-%m')")
+            ->join('alunos', 'mensalidades.aluno_id', '=', 'alunos.id')
+            ->selectRaw("DATE_FORMAT(mensalidades.data_pagamento, '%Y-%m') as mes, COALESCE(SUM(mensalidades.valor), 0) as total")
+            ->where('mensalidades.status', 'pago')
+            ->whereNotNull('mensalidades.data_pagamento')
+            ->whereBetween('mensalidades.data_pagamento', [$inicioJanela, $fimJanela])
+            ->groupByRaw("DATE_FORMAT(mensalidades.data_pagamento, '%Y-%m')")
             ->pluck('total', 'mes')
             ->map(fn ($valor) => (float) $valor)
             ->toArray();
@@ -119,10 +121,11 @@ class DashboardController extends Controller
         $diasNoMes = $hoje->daysInMonth;
 
         $porDiaQuery = Mensalidade::query()
-            ->selectRaw("DAY(data_vencimento) as dia, status, COUNT(*) as qtd")
-            ->whereYear('data_vencimento', $hoje->year)
-            ->whereMonth('data_vencimento', $hoje->month)
-            ->groupByRaw('DAY(data_vencimento), status')
+            ->join('alunos', 'mensalidades.aluno_id', '=', 'alunos.id')
+            ->selectRaw("DAY(mensalidades.data_vencimento) as dia, mensalidades.status, COUNT(*) as qtd")
+            ->whereYear('mensalidades.data_vencimento', $hoje->year)
+            ->whereMonth('mensalidades.data_vencimento', $hoje->month)
+            ->groupByRaw('DAY(mensalidades.data_vencimento), mensalidades.status')
             ->get()
             ->groupBy('dia');
 
@@ -147,16 +150,19 @@ class DashboardController extends Controller
         }
 
         $receitaPorAno = Mensalidade::query()
-            ->selectRaw("YEAR(data_pagamento) as ano, COALESCE(SUM(valor), 0) as receita")
-            ->where('status', 'pago')
-            ->whereNotNull('data_pagamento')
-            ->groupByRaw('YEAR(data_pagamento)')
+            ->join('alunos', 'mensalidades.aluno_id', '=', 'alunos.id')
+            ->selectRaw("YEAR(mensalidades.data_pagamento) as ano, COALESCE(SUM(mensalidades.valor), 0) as receita")
+            ->where('mensalidades.status', 'pago')
+            ->whereNotNull('mensalidades.data_pagamento')
+            ->groupByRaw('YEAR(mensalidades.data_pagamento)')
             ->orderBy('ano')
             ->get()
             ->map(fn ($item) => ['ano' => (string) $item->ano, 'receita' => (float) $item->receita])
             ->all();
 
-        $totalPendenteValor = Mensalidade::where('status', '!=', 'pago')->sum('valor');
+        $totalPendenteValor = Mensalidade::join('alunos', 'mensalidades.aluno_id', '=', 'alunos.id')
+            ->where('mensalidades.status', '!=', 'pago')
+            ->sum('mensalidades.valor');
         $alunosAtivos = Aluno::where('status', 'ativo')->count();
         $ticketMedio = $alunosAtivos > 0 ? $totalPendenteValor / $alunosAtivos : 0;
 

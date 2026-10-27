@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Aluno;
 use App\Models\Associado;
 use App\Models\Mensalidade;
+use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class AlunoController extends Controller
 {
@@ -161,7 +163,30 @@ class AlunoController extends Controller
 
     public function destroy(Aluno $aluno)
     {
-        $aluno->delete();
+        DB::transaction(function () use ($aluno) {
+            $mensalidades = Mensalidade::where('aluno_id', $aluno->id)->get();
+            $mensalidadeIds = $mensalidades->pluck('id')->toArray();
+
+            if (!empty($mensalidadeIds)) {
+                Transaction::where('source_type', 'mensalidade')
+                    ->whereIn('source_id', $mensalidadeIds)
+                    ->delete();
+
+                if (Schema::hasTable('pagamento_transacoes')) {
+                    DB::table('pagamento_transacoes')->whereIn('mensalidade_id', $mensalidadeIds)->delete();
+                }
+                if (Schema::hasTable('pagamento_historico')) {
+                    DB::table('pagamento_historico')->whereIn('mensalidade_id', $mensalidadeIds)->delete();
+                }
+
+                Mensalidade::whereIn('id', $mensalidadeIds)->delete();
+            }
+
+            Associado::where('aluno_id', $aluno->id)->delete();
+
+            $aluno->delete();
+        });
+
         return response()->noContent();
     }
 

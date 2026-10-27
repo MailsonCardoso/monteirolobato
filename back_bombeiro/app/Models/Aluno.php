@@ -29,4 +29,31 @@ class Aluno extends Model
     {
         return $this->hasMany(Mensalidade::class);
     }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Aluno $aluno) {
+            // Deletar associados vinculados a este aluno
+            Associado::where('aluno_id', $aluno->id)->delete();
+
+            // Deletar mensalidades e suas transações/históricos
+            $mensalidades = Mensalidade::where('aluno_id', $aluno->id)->get();
+            $mensalidadeIds = $mensalidades->pluck('id')->toArray();
+
+            if (!empty($mensalidadeIds)) {
+                Transaction::where('source_type', 'mensalidade')
+                    ->whereIn('source_id', $mensalidadeIds)
+                    ->delete();
+
+                if (\Illuminate\Support\Facades\Schema::hasTable('pagamento_transacoes')) {
+                    \Illuminate\Support\Facades\DB::table('pagamento_transacoes')->whereIn('mensalidade_id', $mensalidadeIds)->delete();
+                }
+                if (\Illuminate\Support\Facades\Schema::hasTable('pagamento_historico')) {
+                    \Illuminate\Support\Facades\DB::table('pagamento_historico')->whereIn('mensalidade_id', $mensalidadeIds)->delete();
+                }
+
+                Mensalidade::whereIn('id', $mensalidadeIds)->delete();
+            }
+        });
+    }
 }
