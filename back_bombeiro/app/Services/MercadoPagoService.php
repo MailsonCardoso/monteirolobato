@@ -15,8 +15,8 @@ class MercadoPagoService
 
     public function __construct()
     {
-        $this->accessToken = config('services.mercadopago.access_token', '');
-        $isSandbox = config('services.mercadopago.sandbox', true);
+        $this->accessToken = (string) (config('services.mercadopago.access_token') ?? '');
+        $isSandbox = (bool) config('services.mercadopago.sandbox', true);
         $this->baseUrl = $isSandbox
             ? 'https://api.mercadopago.com/sandbox/v1'
             : 'https://api.mercadopago.com/v1';
