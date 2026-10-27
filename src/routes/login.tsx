@@ -55,32 +55,47 @@ function Login() {
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-primary via-primary to-info text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
-        <div className="relative flex items-center gap-2">
-          <div className="size-10 rounded-lg bg-white/15 grid place-items-center backdrop-blur">
-            <GraduationCap className="size-6" />
+        <div className="relative flex items-center gap-3">
+          <img
+            src="/logo-2dejulho.jpg"
+            alt="2 de Julho"
+            className="size-12 rounded-full object-cover border border-white/25 bg-black"
+          />
+          <div>
+            <span className="font-semibold text-lg leading-tight block">2 de Julho</span>
+            <span className="text-xs text-primary-foreground/75 block">Colégio Militar Monteiro Lobato</span>
           </div>
-          <span className="font-semibold text-lg">EduFinance</span>
         </div>
         <div className="relative">
-          <h2 className="text-4xl font-semibold leading-tight">Gestão financeira escolar</h2>
+          <h2 className="text-4xl font-semibold leading-tight">Gestão Escolar e Financeira</h2>
           <p className="mt-4 text-primary-foreground/85 max-w-md">
-            Controle de mensalidades, inadimplência e relatórios em uma plataforma elegante e
-            moderna.
+            Controle de mensalidades, secretaria, inadimplência e relatórios da Unidade Monteiro Lobato.
           </p>
         </div>
-        <p className="relative text-sm text-primary-foreground/70">© 2026 EduFinance</p>
+        <p className="relative text-sm text-primary-foreground/70">© 2026 Colégio Militar 2 de Julho</p>
       </div>
 
       <div className="flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-sm animate-in">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="size-10 rounded-lg bg-primary grid place-items-center text-primary-foreground">
-              <GraduationCap className="size-6" />
+          <div className="lg:hidden flex items-center gap-3 mb-8">
+            <img
+              src="/logo-2dejulho.jpg"
+              alt="2 de Julho"
+              className="size-11 rounded-full object-cover border border-[#D62828] bg-black"
+            />
+            <div>
+              <span className="font-semibold text-base leading-tight block text-foreground">2 de Julho</span>
+              <span className="text-xs text-muted-foreground block">Colégio Militar Monteiro Lobato</span>
             </div>
-            <span className="font-semibold text-lg">EduFinance</span>
           </div>
-          <h1 className="text-2xl font-semibold">Acesse sua conta</h1>
-          <p className="text-sm text-muted-foreground mt-1">Entre com seu e-mail e senha</p>
+          <Link
+            to="/associado"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#D62828] mb-3"
+          >
+            &larr; Ir para Área do Associado / Responsável
+          </Link>
+          <h1 className="text-2xl font-semibold">Acesso Administrativo</h1>
+          <p className="text-sm text-muted-foreground mt-1">Entre com seu e-mail e senha de equipe</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-4">
             <div className="space-y-2">

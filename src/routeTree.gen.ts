@@ -30,6 +30,7 @@ import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FinanceiroIndexRouteImport } from './routes/financeiro.index'
+import { Route as AssociadoIndexRouteImport } from './routes/associado.index'
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
 import { Route as FinanceiroReceitaDespesaRouteImport } from './routes/financeiro.receita-despesa'
 import { Route as FinanceiroFluxoCaixaRouteImport } from './routes/financeiro.fluxo-caixa'
@@ -41,7 +42,6 @@ import { Route as SiteOuvidoriaRouteImport } from './routes/_site.ouvidoria'
 import { Route as SiteNoticiasRouteImport } from './routes/_site.noticias'
 import { Route as SiteInstitucionalRouteImport } from './routes/_site.institucional'
 import { Route as SiteContatoRouteImport } from './routes/_site.contato'
-import { Route as SiteAssociadoRouteImport } from './routes/_site.associado'
 
 const TrocarSenhaRoute = TrocarSenhaRouteImport.update({
   id: '/trocar-senha',
@@ -147,6 +147,11 @@ const FinanceiroIndexRoute = FinanceiroIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FinanceiroRoute,
 } as any)
+const AssociadoIndexRoute = AssociadoIndexRouteImport.update({
+  id: '/associado/',
+  path: '/associado/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AlunosIndexRoute = AlunosIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -203,11 +208,6 @@ const SiteContatoRoute = SiteContatoRouteImport.update({
   path: '/contato',
   getParentRoute: () => SiteRoute,
 } as any)
-const SiteAssociadoRoute = SiteAssociadoRouteImport.update({
-  id: '/associado',
-  path: '/associado',
-  getParentRoute: () => SiteRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -229,7 +229,6 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/relatorios': typeof RelatoriosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
-  '/associado': typeof SiteAssociadoRoute
   '/contato': typeof SiteContatoRoute
   '/institucional': typeof SiteInstitucionalRoute
   '/noticias': typeof SiteNoticiasRoute
@@ -241,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/financeiro/fluxo-caixa': typeof FinanceiroFluxoCaixaRoute
   '/financeiro/receita-despesa': typeof FinanceiroReceitaDespesaRoute
   '/alunos/': typeof AlunosIndexRoute
+  '/associado/': typeof AssociadoIndexRoute
   '/financeiro/': typeof FinanceiroIndexRoute
 }
 export interface FileRoutesByTo {
@@ -261,7 +261,6 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/relatorios': typeof RelatoriosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
-  '/associado': typeof SiteAssociadoRoute
   '/contato': typeof SiteContatoRoute
   '/institucional': typeof SiteInstitucionalRoute
   '/noticias': typeof SiteNoticiasRoute
@@ -273,6 +272,7 @@ export interface FileRoutesByTo {
   '/financeiro/fluxo-caixa': typeof FinanceiroFluxoCaixaRoute
   '/financeiro/receita-despesa': typeof FinanceiroReceitaDespesaRoute
   '/alunos': typeof AlunosIndexRoute
+  '/associado': typeof AssociadoIndexRoute
   '/financeiro': typeof FinanceiroIndexRoute
 }
 export interface FileRoutesById {
@@ -297,7 +297,6 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/relatorios': typeof RelatoriosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
-  '/_site/associado': typeof SiteAssociadoRoute
   '/_site/contato': typeof SiteContatoRoute
   '/_site/institucional': typeof SiteInstitucionalRoute
   '/_site/noticias': typeof SiteNoticiasRoute
@@ -309,6 +308,7 @@ export interface FileRoutesById {
   '/financeiro/fluxo-caixa': typeof FinanceiroFluxoCaixaRoute
   '/financeiro/receita-despesa': typeof FinanceiroReceitaDespesaRoute
   '/alunos/': typeof AlunosIndexRoute
+  '/associado/': typeof AssociadoIndexRoute
   '/financeiro/': typeof FinanceiroIndexRoute
 }
 export interface FileRouteTypes {
@@ -333,7 +333,6 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/relatorios'
     | '/trocar-senha'
-    | '/associado'
     | '/contato'
     | '/institucional'
     | '/noticias'
@@ -345,6 +344,7 @@ export interface FileRouteTypes {
     | '/financeiro/fluxo-caixa'
     | '/financeiro/receita-despesa'
     | '/alunos/'
+    | '/associado/'
     | '/financeiro/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -365,7 +365,6 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/relatorios'
     | '/trocar-senha'
-    | '/associado'
     | '/contato'
     | '/institucional'
     | '/noticias'
@@ -377,6 +376,7 @@ export interface FileRouteTypes {
     | '/financeiro/fluxo-caixa'
     | '/financeiro/receita-despesa'
     | '/alunos'
+    | '/associado'
     | '/financeiro'
   id:
     | '__root__'
@@ -400,7 +400,6 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/relatorios'
     | '/trocar-senha'
-    | '/_site/associado'
     | '/_site/contato'
     | '/_site/institucional'
     | '/_site/noticias'
@@ -412,6 +411,7 @@ export interface FileRouteTypes {
     | '/financeiro/fluxo-caixa'
     | '/financeiro/receita-despesa'
     | '/alunos/'
+    | '/associado/'
     | '/financeiro/'
   fileRoutesById: FileRoutesById
 }
@@ -437,6 +437,7 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   TrocarSenhaRoute: typeof TrocarSenhaRoute
   AssociadoPainelRoute: typeof AssociadoPainelRoute
+  AssociadoIndexRoute: typeof AssociadoIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -588,6 +589,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceiroIndexRouteImport
       parentRoute: typeof FinanceiroRoute
     }
+    '/associado/': {
+      id: '/associado/'
+      path: '/associado'
+      fullPath: '/associado/'
+      preLoaderRoute: typeof AssociadoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/alunos/': {
       id: '/alunos/'
       path: '/'
@@ -665,18 +673,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteContatoRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/_site/associado': {
-      id: '/_site/associado'
-      path: '/associado'
-      fullPath: '/associado'
-      preLoaderRoute: typeof SiteAssociadoRouteImport
-      parentRoute: typeof SiteRoute
-    }
   }
 }
 
 interface SiteRouteChildren {
-  SiteAssociadoRoute: typeof SiteAssociadoRoute
   SiteContatoRoute: typeof SiteContatoRoute
   SiteInstitucionalRoute: typeof SiteInstitucionalRoute
   SiteNoticiasRoute: typeof SiteNoticiasRoute
@@ -685,7 +685,6 @@ interface SiteRouteChildren {
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
-  SiteAssociadoRoute: SiteAssociadoRoute,
   SiteContatoRoute: SiteContatoRoute,
   SiteInstitucionalRoute: SiteInstitucionalRoute,
   SiteNoticiasRoute: SiteNoticiasRoute,
@@ -748,6 +747,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   TrocarSenhaRoute: TrocarSenhaRoute,
   AssociadoPainelRoute: AssociadoPainelRoute,
+  AssociadoIndexRoute: AssociadoIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

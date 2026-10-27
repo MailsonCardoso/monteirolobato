@@ -24,10 +24,10 @@ function SiteLayout() {
         <div className="container-page">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link to="/institucional" className="flex items-center gap-3 shrink-0">
-              <img src="/logotipo.jpeg" alt="APA CMCB XII" className="size-9 rounded-lg object-cover" />
+              <img src="/logo-2dejulho.jpg" alt="Colégio Militar 2 de Julho" className="size-9 rounded-lg object-cover" />
               <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-[#D62828] leading-tight">APA CMCB XII</p>
-                <p className="text-[10px] text-gray-500 leading-tight">Associação de Pais e Amigos</p>
+                <p className="text-sm font-semibold text-[#D62828] leading-tight">2 de Julho</p>
+                <p className="text-[10px] text-gray-500 leading-tight">Colégio Militar Monteiro Lobato</p>
               </div>
             </Link>
 
@@ -122,10 +122,10 @@ function SiteLayout() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-3 mb-4">
-                <img src="/logotipo.jpeg" alt="APA CMCB XII" className="size-10 rounded-lg object-cover" />
+                <img src="/logo-2dejulho.jpg" alt="Colégio Militar 2 de Julho" className="size-10 rounded-lg object-cover" />
                 <div>
-                  <p className="text-sm font-semibold leading-tight">APA CMCB XII</p>
-                  <p className="text-[10px] text-white/60 leading-tight">Associação de Pais e Amigos</p>
+                  <p className="text-sm font-semibold leading-tight">Colégio Militar 2 de Julho</p>
+                  <p className="text-[10px] text-white/60 leading-tight">Unidade Monteiro Lobato</p>
                 </div>
               </div>
               <p className="text-sm text-white/70 leading-relaxed max-w-xs">
@@ -152,7 +152,7 @@ function SiteLayout() {
             <div>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-4">Serviços</h4>
               <ul className="space-y-2.5">
-                {["Portal da Transparência", "Ouvidoria", "Seja Sócio", "Contato"].map((item) => (
+                {["Portal da Transparência", "Ouvidoria", "Portal do Associado", "Contato"].map((item) => (
                   <li key={item}>
                     <a href="#" className="text-sm text-white/70 hover:text-white transition-colors">{item}</a>
                   </li>
@@ -163,15 +163,14 @@ function SiteLayout() {
             <div>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-4">Contato</h4>
               <ul className="space-y-2.5 text-sm text-white/70">
-                <li>contato@apacmcbxii.org.br</li>
-                <li>(71) 99999-9999</li>
-                <li className="text-xs">CNPJ: 00.000.000/0001-00</li>
+                <li>contato@monteirolobato.org.br</li>
+                <li>(98) 99999-9999</li>
               </ul>
             </div>
           </div>
 
           <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/50">
-            <p>&copy; {new Date().getFullYear()} APA CMCB XII. Todos os direitos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} Colégio Militar 2 de Julho. Todos os direitos reservados.</p>
             <div className="flex items-center gap-4">
               <a href="#" className="hover:text-white/70 transition-colors">Política de Privacidade</a>
               <a href="#" className="hover:text-white/70 transition-colors">LGPD</a>
