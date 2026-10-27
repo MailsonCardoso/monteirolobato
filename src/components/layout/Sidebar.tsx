@@ -168,7 +168,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
       <div className="p-2 border-t border-sidebar-border">
         <Link
-          to="/"
+          to="/login"
           className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors"
         >
           <LogOut className="size-[18px] shrink-0" />

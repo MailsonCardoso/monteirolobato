@@ -63,7 +63,7 @@ api.interceptors.response.use(
 
       localStorage.removeItem("edu_token");
       if (!isSiteRoute && !pathname.startsWith("/associado")) {
-        window.location.href = "/";
+        window.location.href = "/login";
       }
     }
     return Promise.reject(err);

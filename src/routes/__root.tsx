@@ -26,8 +26,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
   const isSiteRoute = sitePaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const isAssociadoRoute = pathname.startsWith("/associado");
-  const isLoginRoute = pathname === "/" || pathname === "/login";
-  const isPublicRoute = isLoginRoute || isSiteRoute || isAssociadoRoute;
+  const isLoginRoute = pathname === "/login";
+  const isPublicRoute = pathname === "/" || isLoginRoute || isSiteRoute || isAssociadoRoute;
 
   useEffect(() => {
     if (loading) return;
@@ -44,7 +44,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     if (isPublicRoute) return;
 
     if (!user) {
-      navigate({ to: "/", replace: true });
+      navigate({ to: "/login", replace: true });
       return;
     }
 
