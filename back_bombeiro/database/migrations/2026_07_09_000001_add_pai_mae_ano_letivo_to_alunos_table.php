@@ -28,4 +28,5 @@ return new class extends Migration
         Schema::table('alunos', function (Blueprint $table) {
             $table->dropColumn(['nome_pai', 'nome_mae', 'ano_letivo', 'email_responsavel', 'cep_resp', 'logradouro_resp', 'numero_resp', 'bairro_resp', 'cidade_resp', 'parentesco_resp', 'matricula']);
         });
-    };
+    }
+};
