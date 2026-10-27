@@ -14,23 +14,30 @@ api.interceptors.request.use((config) => {
   const isPublic =
     url === "/associado/login" ||
     (url === "/associado" && method === "post");
+
+  // Apenas rotas no singular (/associado ou /associado/...) pertencem ao portal do associado.
+  // Rotas no plural (/associados) são da gestão administrativa (exigem edu_token do admin).
   const isAssociadoRoute =
-    url.startsWith("/associado") ||
-    url.startsWith("/mensalidades/") && url.includes("/gerar-cobranca") ||
-    url.startsWith("/mensalidades/") && url.includes("/status-pagamento");
+    (url === "/associado" || url.startsWith("/associado/")) ||
+    (url.startsWith("/mensalidades/") && url.includes("/gerar-cobranca")) ||
+    (url.startsWith("/mensalidades/") && url.includes("/status-pagamento"));
+
   (config as any)._isAssociado = isAssociadoRoute;
+
   if (!isPublic) {
-    // Cada contexto utiliza seu token respectivo para não causar conflito de autenticação
     const token = isAssociadoRoute
       ? localStorage.getItem("associado_token")
       : localStorage.getItem("edu_token");
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
+
   if (config.data instanceof FormData) {
     delete config.headers["Content-Type"];
   }
+
   return config;
 });
 
