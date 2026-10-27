@@ -11,6 +11,7 @@
 .env.production
 test_db.php
 setup_admin_e_sessions.php
+check_and_fix_user.php
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
