@@ -165,7 +165,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           <button
             onClick={() => {
               logout();
-              navigate({ to: "/login" });
+              navigate({ to: "/" });
             }}
             className="p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
             aria-label="Sair"

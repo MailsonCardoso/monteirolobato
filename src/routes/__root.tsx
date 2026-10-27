@@ -24,17 +24,27 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const isSiteRoute =
-    pathname === "/" || sitePaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const isSiteRoute = sitePaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const isAssociadoRoute = pathname.startsWith("/associado");
-  const isPublicRoute = pathname === "/login" || isSiteRoute || isAssociadoRoute;
+  const isLoginRoute = pathname === "/" || pathname === "/login";
+  const isPublicRoute = isLoginRoute || isSiteRoute || isAssociadoRoute;
 
   useEffect(() => {
     if (loading) return;
+
+    if (user && isLoginRoute) {
+      if (user.must_change_password) {
+        navigate({ to: "/trocar-senha", replace: true });
+      } else {
+        navigate({ to: homeFor(user.role), replace: true });
+      }
+      return;
+    }
+
     if (isPublicRoute) return;
 
     if (!user) {
-      navigate({ to: "/login", replace: true });
+      navigate({ to: "/", replace: true });
       return;
     }
 
@@ -46,7 +56,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!canAccess(user.role, pathname)) {
       navigate({ to: homeFor(user.role), replace: true });
     }
-  }, [user, loading, pathname, isPublicRoute, navigate]);
+  }, [user, loading, pathname, isPublicRoute, isLoginRoute, navigate]);
 
   if (loading) return null;
   if (isPublicRoute) return <>{children}</>;
@@ -57,9 +67,9 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isSiteRoute =
-    pathname === "/" || sitePaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const isSiteRoute = sitePaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const isAuthRoute =
+    pathname === "/" ||
     pathname === "/login" ||
     pathname === "/trocar-senha" ||
     pathname.startsWith("/associado") ||

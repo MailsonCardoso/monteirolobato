@@ -7,7 +7,6 @@ export const Route = createFileRoute("/_site")({
 });
 
 const navLinks = [
-  { label: "Início", to: "/" },
   { label: "Institucional", to: "/institucional" },
   { label: "Transparência", to: "/transparencia" },
   { label: "Ouvidoria", to: "/ouvidoria" },
@@ -24,7 +23,7 @@ function SiteLayout() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="container-page">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <Link to="/" className="flex items-center gap-3 shrink-0">
+            <Link to="/institucional" className="flex items-center gap-3 shrink-0">
               <img src="/logotipo.jpeg" alt="APA CMCB XII" className="size-9 rounded-lg object-cover" />
               <div className="hidden sm:block">
                 <p className="text-sm font-semibold text-[#D62828] leading-tight">APA CMCB XII</p>

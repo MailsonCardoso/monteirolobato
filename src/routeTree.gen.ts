@@ -28,9 +28,9 @@ import { Route as FinanceiroRouteImport } from './routes/financeiro'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as SiteRouteImport } from './routes/_site'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as FinanceiroIndexRouteImport } from './routes/financeiro.index'
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
-import { Route as SiteIndexRouteImport } from './routes/_site.index'
 import { Route as FinanceiroReceitaDespesaRouteImport } from './routes/financeiro.receita-despesa'
 import { Route as FinanceiroFluxoCaixaRouteImport } from './routes/financeiro.fluxo-caixa'
 import { Route as AssociadoPainelRouteImport } from './routes/associado.painel'
@@ -137,6 +137,11 @@ const SiteRoute = SiteRouteImport.update({
   id: '/_site',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FinanceiroIndexRoute = FinanceiroIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -146,11 +151,6 @@ const AlunosIndexRoute = AlunosIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AlunosRoute,
-} as any)
-const SiteIndexRoute = SiteIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => SiteRoute,
 } as any)
 const FinanceiroReceitaDespesaRoute =
   FinanceiroReceitaDespesaRouteImport.update({
@@ -210,7 +210,7 @@ const SiteAssociadoRoute = SiteAssociadoRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof SiteIndexRoute
+  '/': typeof IndexRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/financeiro': typeof FinanceiroRouteWithChildren
@@ -244,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/financeiro/': typeof FinanceiroIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/gestao-associados': typeof GestaoAssociadosRoute
   '/gestao-auditoria': typeof GestaoAuditoriaRoute
@@ -271,12 +272,12 @@ export interface FileRoutesByTo {
   '/associado/painel': typeof AssociadoPainelRoute
   '/financeiro/fluxo-caixa': typeof FinanceiroFluxoCaixaRoute
   '/financeiro/receita-despesa': typeof FinanceiroReceitaDespesaRoute
-  '/': typeof SiteIndexRoute
   '/alunos': typeof AlunosIndexRoute
   '/financeiro': typeof FinanceiroIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_site': typeof SiteRouteWithChildren
   '/alunos': typeof AlunosRouteWithChildren
   '/dashboard': typeof DashboardRoute
@@ -307,7 +308,6 @@ export interface FileRoutesById {
   '/associado/painel': typeof AssociadoPainelRoute
   '/financeiro/fluxo-caixa': typeof FinanceiroFluxoCaixaRoute
   '/financeiro/receita-despesa': typeof FinanceiroReceitaDespesaRoute
-  '/_site/': typeof SiteIndexRoute
   '/alunos/': typeof AlunosIndexRoute
   '/financeiro/': typeof FinanceiroIndexRoute
 }
@@ -348,6 +348,7 @@ export interface FileRouteTypes {
     | '/financeiro/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/dashboard'
     | '/gestao-associados'
     | '/gestao-auditoria'
@@ -375,11 +376,11 @@ export interface FileRouteTypes {
     | '/associado/painel'
     | '/financeiro/fluxo-caixa'
     | '/financeiro/receita-despesa'
-    | '/'
     | '/alunos'
     | '/financeiro'
   id:
     | '__root__'
+    | '/'
     | '/_site'
     | '/alunos'
     | '/dashboard'
@@ -410,12 +411,12 @@ export interface FileRouteTypes {
     | '/associado/painel'
     | '/financeiro/fluxo-caixa'
     | '/financeiro/receita-despesa'
-    | '/_site/'
     | '/alunos/'
     | '/financeiro/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   SiteRoute: typeof SiteRouteWithChildren
   AlunosRoute: typeof AlunosRouteWithChildren
   DashboardRoute: typeof DashboardRoute
@@ -573,6 +574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/financeiro/': {
       id: '/financeiro/'
       path: '/'
@@ -586,13 +594,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/alunos/'
       preLoaderRoute: typeof AlunosIndexRouteImport
       parentRoute: typeof AlunosRoute
-    }
-    '/_site/': {
-      id: '/_site/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof SiteIndexRouteImport
-      parentRoute: typeof SiteRoute
     }
     '/financeiro/receita-despesa': {
       id: '/financeiro/receita-despesa'
@@ -681,7 +682,6 @@ interface SiteRouteChildren {
   SiteNoticiasRoute: typeof SiteNoticiasRoute
   SiteOuvidoriaRoute: typeof SiteOuvidoriaRoute
   SiteTransparenciaRoute: typeof SiteTransparenciaRoute
-  SiteIndexRoute: typeof SiteIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
@@ -691,7 +691,6 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteNoticiasRoute: SiteNoticiasRoute,
   SiteOuvidoriaRoute: SiteOuvidoriaRoute,
   SiteTransparenciaRoute: SiteTransparenciaRoute,
-  SiteIndexRoute: SiteIndexRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
@@ -728,6 +727,7 @@ const FinanceiroRouteWithChildren = FinanceiroRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   SiteRoute: SiteRouteWithChildren,
   AlunosRoute: AlunosRouteWithChildren,
   DashboardRoute: DashboardRoute,
