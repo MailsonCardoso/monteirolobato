@@ -86,7 +86,7 @@ export const ReciboVisual = forwardRef<HTMLDivElement, { mensalidade: Mensalidad
           <div style={{ fontSize: 9.5, opacity: 0.85, marginTop: 12, lineHeight: 1.5 }}>
             CNPJ nº 50.264.838/0001-60
             <br />
-            Rua C, Quadra 11, Casa 36, Paraná I, Paço do Lumiar/MA · CEP 65.130-000
+            Rua 55, S/N - Quadra 61, Maiobão, Paço do Lumiar/MA · CEP 65.130-000
           </div>
         </div>
 

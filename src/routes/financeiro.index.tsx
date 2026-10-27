@@ -386,7 +386,7 @@ function Financeiro() {
 
     y += 6;
     doc.text(
-      "Rua C, Quadra 11, Casa 36, Paraná I, Paço do Lumiar/MA, CEP 65.130-000",
+      "Rua 55, S/N - Quadra 61, Maiobão, Paço do Lumiar/MA, CEP 65.130-000",
       ml + cw / 2,
       y,
       {
