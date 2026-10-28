@@ -22,7 +22,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { turmas } from "@/lib/mock-data";
+import { turmas, anosLetivos } from "@/lib/mock-data";
 import type { Aluno } from "@/lib/mock-data";
 import { toast } from "sonner";
 import { fetchAlunos, createAluno, updateAluno, deleteAluno } from "@/lib/api/alunos";
@@ -37,6 +37,7 @@ function AlunosList() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [turma, setTurma] = useState("all");
+  const [anoFilter, setAnoFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sheetAluno, setSheetAluno] = useState<Aluno | null>(null);
   const [sheetMode, setSheetMode] = useState<"view" | "edit" | "create">("view");
@@ -59,9 +60,10 @@ function AlunosList() {
             a.nome.toLowerCase().includes(q.toLowerCase()) ||
             a.responsavel.toLowerCase().includes(q.toLowerCase())) &&
           (turma === "all" || a.turma === turma) &&
-          (statusFilter === "all" || a.status === statusFilter),
+          (statusFilter === "all" || a.status === statusFilter) &&
+          (anoFilter === "all" || a.anoLetivo === anoFilter),
       ),
-    [data, q, turma, statusFilter],
+    [data, q, turma, statusFilter, anoFilter],
   );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
@@ -72,7 +74,7 @@ function AlunosList() {
 
   useEffect(() => {
     setPage(1);
-  }, [q, turma, statusFilter]);
+  }, [q, turma, statusFilter, anoFilter]);
 
   const handleSave = async (aluno: Aluno) => {
     try {
@@ -180,6 +182,19 @@ function AlunosList() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={anoFilter} onValueChange={setAnoFilter}>
+            <SelectTrigger className="w-36 h-10">
+              <SelectValue placeholder="Ano letivo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os anos</SelectItem>
+              {anosLetivos.map((ano) => (
+                <SelectItem key={ano} value={ano}>
+                  {ano}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-40 h-10">
               <SelectValue placeholder="Todos os status" />
@@ -209,6 +224,7 @@ function AlunosList() {
                   <th className="px-4 py-3 font-medium">Nome</th>
                   <th className="px-4 py-3 font-medium">Responsável</th>
                   <th className="px-4 py-3 font-medium">Turma</th>
+                  <th className="px-4 py-3 font-medium">Ano</th>
                   <th className="px-4 py-3 font-medium">Telefone do responsável</th>
                   <th className="px-4 py-3 font-medium">Status</th>
                   <th className="px-4 py-3 font-medium text-right">Ações</th>
@@ -220,6 +236,11 @@ function AlunosList() {
                     <td className="px-4 py-3 font-medium">{a.nome}</td>
                     <td className="px-4 py-3 text-muted-foreground">{a.responsavel}</td>
                     <td className="px-4 py-3">{a.turma}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-foreground">
+                        {a.anoLetivo || "—"}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-muted-foreground">{a.telefoneResponsavel}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={a.status} />

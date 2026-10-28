@@ -18,7 +18,7 @@ import {
 import { PageHeader, StatusBadge } from "@/components/shared/Primitives";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { turmas } from "@/lib/mock-data";
+import { turmas, anosLetivos } from "@/lib/mock-data";
 import type { Aluno } from "@/lib/mock-data";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -549,7 +549,17 @@ function AlunoDetalhe() {
             </Field>
             <Field label="Ano letivo" error={errors.anoLetivo?.message}>
               {editing ? (
-                <Input className="h-10" placeholder="2026" {...register("anoLetivo")} />
+                <select
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm outline-none focus:border-ring transition-colors"
+                  {...register("anoLetivo")}
+                >
+                  <option value="">Selecione...</option>
+                  {anosLetivos.map((ano) => (
+                    <option key={ano} value={ano}>
+                      {ano}
+                    </option>
+                  ))}
+                </select>
               ) : (
                 <p className="text-sm py-2.5">{aluno.anoLetivo || "—"}</p>
               )}

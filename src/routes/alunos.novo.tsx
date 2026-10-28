@@ -7,7 +7,7 @@ import { Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/shared/Primitives";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { turmas } from "@/lib/mock-data";
+import { turmas, anosLetivos } from "@/lib/mock-data";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { maskCPF, maskDate, maskPhone, formatarCep, buscarCep } from "@/lib/format";
@@ -84,6 +84,7 @@ function NovoAluno() {
       sexo: "masculino",
       valorMensalidade: 60 as number,
       diaVencimento: 10,
+      anoLetivo: "2027",
     },
   });
 
@@ -350,7 +351,16 @@ function NovoAluno() {
               />
             </Field>
             <Field label="Ano letivo" error={errors.anoLetivo?.message}>
-              <Input className="h-10" placeholder="2026" {...register("anoLetivo")} />
+              <select
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm outline-none focus:border-ring transition-colors"
+                {...register("anoLetivo")}
+              >
+                {anosLetivos.map((ano) => (
+                  <option key={ano} value={ano}>
+                    {ano}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="Dia vencimento" error={errors.diaVencimento?.message}>
               <Controller

@@ -19,6 +19,14 @@ import { brl } from "@/lib/format";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { anosLetivos } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/relatorios")({
   component: Relatorios,
@@ -61,6 +69,7 @@ function useReportData() {
 
 function Relatorios() {
   const { alunos, mensalidades, loading } = useReportData();
+  const [ano, setAno] = useState<string>("2027");
 
   if (loading) {
     return (
@@ -72,7 +81,27 @@ function Relatorios() {
 
   return (
     <>
-      <PageHeader title="Relatórios" description="Exporte dados em PDF ou Excel" />
+      <PageHeader
+        title="Relatórios"
+        description="Exporte dados em PDF ou Excel"
+        action={
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Ano letivo:</span>
+            <Select value={ano} onValueChange={setAno}>
+              <SelectTrigger className="w-28 h-9">
+                <SelectValue placeholder="Ano" />
+              </SelectTrigger>
+              <SelectContent>
+                {anosLetivos.map((a) => (
+                  <SelectItem key={a} value={a}>
+                    {a}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        }
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <MensalCard
@@ -86,10 +115,10 @@ function Relatorios() {
         <MensalCard
           icon={FileBarChart}
           title="Relatório anual"
-          desc="Visão consolidada do ano letivo"
+          desc={`Visão consolidada do ano letivo de ${ano}`}
           tone="bg-info/10 text-info"
-          onPDF={() => gerarPDFAnual(mensalidades, alunos)}
-          onExcel={() => gerarExcelAnual(mensalidades, alunos)}
+          onPDF={() => gerarPDFAnual(mensalidades, alunos, Number(ano))}
+          onExcel={() => gerarExcelAnual(mensalidades, alunos, Number(ano))}
         />
         <MensalCard
           icon={AlertTriangle}
@@ -256,9 +285,8 @@ function gerarExcelMensal(mensalidades: Mensalidade[], alunos: Aluno[]) {
   baixarExcel(wb, `relatorio_mensal_${ano}_${String(mes + 1).padStart(2, "0")}`);
 }
 
-function gerarPDFAnual(mensalidades: Mensalidade[], alunos: Aluno[]) {
+function gerarPDFAnual(mensalidades: Mensalidade[], alunos: Aluno[], ano: number = new Date().getFullYear()) {
   const doc = new jsPDF("l", "mm", "a4");
-  const ano = new Date().getFullYear();
   const top = headers(doc, `Relatório Anual - ${ano}`);
 
   const meses = [
@@ -304,8 +332,7 @@ function gerarPDFAnual(mensalidades: Mensalidade[], alunos: Aluno[]) {
   baixarPDF(doc, `relatorio_anual_${ano}`);
 }
 
-function gerarExcelAnual(mensalidades: Mensalidade[], _alunos: Aluno[]) {
-  const ano = new Date().getFullYear();
+function gerarExcelAnual(mensalidades: Mensalidade[], _alunos: Aluno[], ano: number = new Date().getFullYear()) {
   const meses = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",

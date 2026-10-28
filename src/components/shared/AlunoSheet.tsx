@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/shared/Primitives";
 import type { Aluno } from "@/lib/mock-data";
-import { turmas } from "@/lib/mock-data";
+import { turmas, anosLetivos } from "@/lib/mock-data";
 import { maskCPF, maskDate, maskPhone, fmtDate } from "@/lib/format";
 import { checkCpfExists } from "@/lib/api/alunos";
 import { buscarCep, formatarCep } from "@/lib/format";
@@ -107,9 +107,9 @@ const emptyAluno: Aluno = {
   telefoneResponsavel: "",
   turma: "",
   status: "ativo",
-valorMensalidade: 60,
+  valorMensalidade: 60,
   diaVencimento: 10,
-  anoLetivo: "",
+  anoLetivo: "2027",
 };
 
 export function AlunoSheet({
@@ -374,7 +374,17 @@ const handleCepBlur = async (value: string) => {
             </Field>
             <Field label="Ano letivo" error={errors.anoLetivo?.message}>
               {editing ? (
-                <Input className="h-10" placeholder="2026" {...register("anoLetivo")} />
+                <select
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm outline-none focus:border-ring transition-colors"
+                  {...register("anoLetivo")}
+                >
+                  <option value="">Selecione...</option>
+                  {anosLetivos.map((ano) => (
+                    <option key={ano} value={ano}>
+                      {ano}
+                    </option>
+                  ))}
+                </select>
               ) : (
                 <p className={viewCls}>{current.anoLetivo || "—"}</p>
               )}

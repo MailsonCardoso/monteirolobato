@@ -78,8 +78,15 @@ class AlunoController extends Controller
     {
         $agora = now();
         $dia = $aluno->dia_vencimento ?? 10;
+        $ano = $aluno->ano_letivo ?: $agora->format('Y');
 
-        $mesRef = $agora->format('m/Y');
+        if ((int) $ano > (int) $agora->format('Y')) {
+            $mesRef = sprintf('01/%s', $ano);
+            $vencimento = sprintf('%s-01-%02d', $ano, $dia);
+        } else {
+            $mesRef = $agora->format('m/Y');
+            $vencimento = $agora->format('Y-m') . sprintf('-%02d', $dia);
+        }
 
         $jaExiste = Mensalidade::where('aluno_id', $aluno->id)
             ->where('mes_referencia', $mesRef)
@@ -93,13 +100,15 @@ class AlunoController extends Controller
             'aluno_id' => $aluno->id,
             'mes_referencia' => $mesRef,
             'valor' => $aluno->valor_mensalidade,
-            'data_vencimento' => $agora->format('Y-m') . sprintf('-%02d', $dia),
+            'valor_cobrado' => $aluno->valor_mensalidade,
+            'data_vencimento' => $vencimento,
             'status' => 'pendente',
         ]);
 
         Log::info('Aluno: Mensalidade inicial criada', [
             'aluno_id' => $aluno->id,
             'mes_referencia' => $mesRef,
+            'data_vencimento' => $vencimento,
         ]);
     }
 
