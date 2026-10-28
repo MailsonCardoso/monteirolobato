@@ -62,4 +62,4 @@ export const turmas: string[] = romanos.flatMap((romano) =>
   letrasTurma.map((letra) => `${romano} Ano ${letra}`),
 );
 
-export const anosLetivos = ["2026", "2027", "2028", "2029", "2030"] as const;
+export const anosLetivos = ["2027", "2028", "2029", "2030"] as const;
