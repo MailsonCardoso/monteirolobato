@@ -44,7 +44,7 @@ Route::get('/associado/mensalidades', [App\Http\Controllers\AssociadoController:
 Route::post('/webhooks/mercadopago', MercadoPagoWebhookController::class);
 
 // Cobrança Mercado Pago (usando token do associado)
-Route::post('/mensalidades/{mensalidade}/gerar-cobranca', [CobrancaController::class, 'gerar']);
+Route::match(['get', 'post'], '/mensalidades/{mensalidade}/gerar-cobranca', [CobrancaController::class, 'gerar']);
 Route::get('/mensalidades/{mensalidade}/status-pagamento', [CobrancaController::class, 'status']);
 
 // Fallback: responde JSON limpo quando um GET cai na rota /pagar (redirecionamentos)

@@ -8,13 +8,28 @@ class GerarCobrancaRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $token = $this->bearerToken();
+        $token = $this->bearerToken() ?: $this->query('token');
+        if (!$token) {
+            $header = $this->header('Authorization');
+            if ($header && preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
+                $token = $matches[1];
+            }
+        }
+
+        // Se for requisição GET do navegador sem token, permite acesso (ex: consulta/redirecionamento)
+        if ($this->isMethod('GET') && !$token) {
+            return true;
+        }
+
         if (!$token) {
             return false;
         }
 
         $associado = \App\Models\Associado::where('api_token', $token)->first();
         if (!$associado) {
+            if (auth('sanctum')->check()) {
+                return true;
+            }
             return false;
         }
 

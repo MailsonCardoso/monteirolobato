@@ -220,14 +220,18 @@ function usePixFlow() {
     setPagandoId(m.id);
     try {
       const result = await gerarCobrancaMensalidade(m.id);
-      if (result.success && result.data?.pix_qr_code_base64) {
+      if (result.success && (result.data?.pix_qr_code_base64 || result.data?.pix_qr_code)) {
         setPix({
           qrCode: result.data.pix_qr_code,
           qrCodeBase64: result.data.pix_qr_code_base64,
           mensalidadeId: m.id,
           status: "waiting",
         });
-      } else if (result.success && result.data?.payment_url) {
+      } else if (
+        result.success &&
+        result.data?.payment_url &&
+        !result.data.payment_url.includes("/api/")
+      ) {
         window.location.href = result.data.payment_url;
       } else {
         toast.error(result.message || "Erro ao gerar cobrança");

@@ -15,12 +15,16 @@ class CobrancaController extends Controller
         private readonly MercadoPagoService $mercadopago,
     ) {}
 
-    public function gerar(Mensalidade $mensalidade, GerarCobrancaRequest $request): JsonResponse
+    public function gerar(Mensalidade $mensalidade, GerarCobrancaRequest $request): \Symfony\Component\HttpFoundation\Response
     {
         $formaPagamento = $request->input('forma_pagamento', 'pix');
 
         try {
-            $transacao = $this->pagamentoService->gerarCobranca($mensalidade, $formaPagamento);
+            // Se já existir transação pendente com qr_code ou payment_url e a mensalidade não estiver paga, reutiliza
+            $transacao = $mensalidade->ultimaTransacao;
+            if (!$transacao || in_array($transacao->status, ['cancelled', 'rejected'])) {
+                $transacao = $this->pagamentoService->gerarCobranca($mensalidade, $formaPagamento);
+            }
 
             $payloadRequest = $transacao->payload_request ?? [];
 
@@ -40,6 +44,11 @@ class CobrancaController extends Controller
                 $data['data_vencimento'] = now()->addDays(3)->format('Y-m-d');
             }
 
+            // Se for requisição GET direta do navegador e houver URL externa válida do Mercado Pago:
+            if ($request->isMethod('GET') && $request->acceptsHtml() && !empty($transacao->payment_url) && filter_var($transacao->payment_url, FILTER_VALIDATE_URL)) {
+                return redirect()->away($transacao->payment_url);
+            }
+
             return response()->json([
                 'success' => true,
                 'data' => $data,
@@ -53,7 +62,7 @@ class CobrancaController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro interno ao gerar cobrança.',
+                'message' => 'Erro interno ao gerar cobrança: ' . $e->getMessage(),
             ], 500);
         }
     }
