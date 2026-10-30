@@ -14,6 +14,8 @@ export interface Aluno {
   id: string;
   nome: string;
   sexo: string;
+  foto?: string | null;
+  fotoUrl?: string | null;
   cpf: string;
   dataNascimento: string;
   telefone: string;

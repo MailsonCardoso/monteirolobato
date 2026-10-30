@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Aluno extends Model
 {
     protected $fillable = [
-        'nome', 'sexo', 'cpf', 'data_nascimento', 'telefone', 'email', 'cep', 'logradouro', 'numero', 'bairro', 'cidade', 'uf',
+        'nome', 'sexo', 'foto', 'cpf', 'data_nascimento', 'telefone', 'email', 'cep', 'logradouro', 'numero', 'bairro', 'cidade', 'uf',
         'nome_mae', 'nome_pai',
         'responsavel', 'cpf_responsavel', 'telefone_responsavel', 'email_responsavel',
         'turma', 'status', 'situacao',
@@ -17,12 +18,25 @@ class Aluno extends Model
         'matricula',
     ];
 
+    protected $appends = ['foto_url'];
+
     protected function casts(): array
     {
         return [
             'status' => 'string',
             'situacao' => 'string',
         ];
+    }
+
+    public function getFotoUrlAttribute(): ?string
+    {
+        if (!$this->foto) {
+            return null;
+        }
+        if (str_starts_with($this->foto, 'http://') || str_starts_with($this->foto, 'https://')) {
+            return $this->foto;
+        }
+        return url('storage/' . $this->foto);
     }
 
     public function mensalidades(): HasMany
@@ -33,6 +47,11 @@ class Aluno extends Model
     protected static function booted(): void
     {
         static::deleting(function (Aluno $aluno) {
+            // Deletar foto do storage se existir
+            if ($aluno->foto) {
+                Storage::disk('public')->delete($aluno->foto);
+            }
+
             // Deletar associados vinculados a este aluno
             Associado::where('aluno_id', $aluno->id)->delete();
 

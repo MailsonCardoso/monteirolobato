@@ -24,7 +24,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { maskCPF, maskDate, maskPhone, fmtDate, brl, formatarCep, buscarCep } from "@/lib/format";
 import { CurrencyInput } from "@/components/shared/CurrencyInput";
-import { fetchAluno, updateAluno, deleteAluno, checkCpfExists } from "@/lib/api/alunos";
+import { fetchAluno, updateAluno, deleteAluno, checkCpfExists, uploadFotoAluno } from "@/lib/api/alunos";
+import { FotoUpload, AlunoAvatar } from "@/components/shared/FotoUpload";
 import api from "@/lib/api";
 
 export const Route = createFileRoute("/alunos/$id")({
@@ -84,10 +85,18 @@ function AlunoDetalhe() {
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [aluno, setAluno] = useState<Aluno | undefined>();
+  const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [fotoRemovida, setFotoRemovida] = useState(false);
 
   useEffect(() => {
     fetchAluno(id)
-      .then(setAluno)
+      .then((data) => {
+        setAluno(data);
+        setFotoPreview(data.fotoUrl || data.foto || null);
+        setFotoFile(null);
+        setFotoRemovida(false);
+      })
       .catch(() => toast.error("Erro ao carregar aluno"))
       .finally(() => setLoading(false));
   }, [id]);
@@ -104,7 +113,7 @@ function AlunoDetalhe() {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     values: aluno
-        ? {
+      ? {
           ...aluno,
           cpf: aluno.cpf ? maskCPF(aluno.cpf) : "",
           cpfResponsavel: aluno.cpfResponsavel ? maskCPF(aluno.cpfResponsavel) : "",
@@ -138,7 +147,24 @@ function AlunoDetalhe() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const updated = await updateAluno(aluno.id, data);
+      const payload: Partial<Aluno> & { remover_foto?: boolean } = { ...data };
+      if (fotoRemovida) {
+        payload.remover_foto = true;
+      }
+      let updated = await updateAluno(aluno.id, payload);
+
+      if (fotoFile) {
+        try {
+          const fotoRes = await uploadFotoAluno(aluno.id, fotoFile);
+          updated = { ...updated, foto: fotoRes.foto, fotoUrl: fotoRes.fotoUrl };
+          setFotoPreview(fotoRes.fotoUrl);
+          setFotoFile(null);
+          setFotoRemovida(false);
+        } catch {
+          toast.error("Dados atualizados, mas ocorreu uma falha ao enviar foto.");
+        }
+      }
+
       setAluno(updated);
       setEditing(false);
       toast.success("Aluno atualizado com sucesso!");
@@ -190,6 +216,9 @@ function AlunoDetalhe() {
                   variant="outline"
                   onClick={() => {
                     reset();
+                    setFotoPreview(aluno.fotoUrl || aluno.foto || null);
+                    setFotoFile(null);
+                    setFotoRemovida(false);
                     setEditing(false);
                   }}
                 >
@@ -238,6 +267,51 @@ function AlunoDetalhe() {
         }
       />
 
+      {/* Cartão de Destaque / Foto do Aluno */}
+      <div className="bg-card rounded-xl border border-border p-6 flex flex-col sm:flex-row items-center gap-6 mb-6">
+        {editing ? (
+          <FotoUpload
+            value={fotoPreview}
+            onChange={(file, preview) => {
+              setFotoFile(file);
+              setFotoPreview(preview);
+              setFotoRemovida(file === null && preview === null);
+            }}
+            nome={aluno.nome}
+            size="lg"
+          />
+        ) : (
+          <AlunoAvatar
+            foto={aluno.fotoUrl || aluno.foto}
+            nome={aluno.nome}
+            size="xl"
+          />
+        )}
+        <div className="text-center sm:text-left flex-1 min-w-0">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+            <h2 className="text-2xl font-bold truncate">{aluno.nome}</h2>
+            <StatusBadge status={aluno.status} />
+            <StatusBadge status={aluno.situacao} />
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            {aluno.turma} {aluno.anoLetivo ? `· Ano ${aluno.anoLetivo}` : ""} · Responsável: {aluno.responsavel}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
+              Vencimento: dia {aluno.diaVencimento || 10}
+            </span>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
+              Mensalidade: {brl(aluno.valorMensalidade || 0)}
+            </span>
+            {aluno.telefoneResponsavel && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
+                Tel: {maskPhone(aluno.telefoneResponsavel)}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
       <form
         id="aluno-form"
         onSubmit={handleSubmit(onSubmit)}
@@ -268,7 +342,7 @@ function AlunoDetalhe() {
                     ? "Feminino"
                     : aluno.sexo === "masculino"
                       ? "Masculino"
-                      : "—"}
+                      : aluno.sexo}
                 </p>
               )}
             </Field>
@@ -276,6 +350,7 @@ function AlunoDetalhe() {
               {editing ? (
                 <Input
                   className="h-10"
+                  placeholder="000.000.000-00"
                   {...register("cpf")}
                   onChange={(e) => {
                     const masked = maskCPF(e.target.value);
@@ -295,7 +370,7 @@ function AlunoDetalhe() {
                   }}
                 />
               ) : (
-                <p className="text-sm py-2.5">{aluno.cpf ? maskCPF(aluno.cpf) : ""}</p>
+                <p className="text-sm py-2.5">{maskCPF(aluno.cpf)}</p>
               )}
             </Field>
             <Field label="Data de nascimento" error={errors.dataNascimento?.message}>
@@ -311,16 +386,14 @@ function AlunoDetalhe() {
                   }}
                 />
               ) : (
-                <p className="text-sm py-2.5">
-                  {aluno.dataNascimento ? fmtDate(aluno.dataNascimento) : ""}
-                </p>
+                <p className="text-sm py-2.5">{fmtDate(aluno.dataNascimento)}</p>
               )}
             </Field>
             <Field label="Telefone" error={errors.telefone?.message}>
               {editing ? (
                 <Input
                   className="h-10"
-                  placeholder="(11) 99999-9999"
+                  placeholder="(00) 00000-0000"
                   {...register("telefone")}
                   onChange={(e) => {
                     const masked = maskPhone(e.target.value);
@@ -329,9 +402,42 @@ function AlunoDetalhe() {
                   }}
                 />
               ) : (
-                <p className="text-sm py-2.5">{aluno.telefone ? maskPhone(aluno.telefone) : ""}</p>
+                <p className="text-sm py-2.5">{maskPhone(aluno.telefone)}</p>
               )}
             </Field>
+            <Field label="E-mail" error={errors.email?.message} className="md:col-span-2">
+              {editing ? (
+                <Input type="email" className="h-10" {...register("email")} />
+              ) : (
+                <p className="text-sm py-2.5">{aluno.email}</p>
+              )}
+            </Field>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="font-semibold mb-4">Filiação</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="Nome da mãe" error={errors.nomeMae?.message}>
+              {editing ? (
+                <Input className="h-10" placeholder="Nome completo da mãe" {...register("nomeMae")} />
+              ) : (
+                <p className="text-sm py-2.5">{aluno.nomeMae || "—"}</p>
+              )}
+            </Field>
+            <Field label="Nome do pai" error={errors.nomePai?.message}>
+              {editing ? (
+                <Input className="h-10" placeholder="Nome completo do pai" {...register("nomePai")} />
+              ) : (
+                <p className="text-sm py-2.5">{aluno.nomePai || "—"}</p>
+              )}
+            </Field>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="font-semibold mb-4">Endereço</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Field label="CEP" error={errors.cep?.message}>
               {editing ? (
                 <Input
@@ -349,31 +455,7 @@ function AlunoDetalhe() {
                 <p className="text-sm py-2.5">{aluno.cep}</p>
               )}
             </Field>
-            <Field label="UF" error={errors.uf?.message}>
-              {editing ? (
-                <Input
-                  className="h-10 uppercase"
-                  placeholder="SP"
-                  maxLength={2}
-                  {...register("uf")}
-                  onChange={(e) => {
-                    const v = e.target.value
-                      .toUpperCase()
-                      .replace(/[^A-Z]/g, "")
-                      .slice(0, 2);
-                    e.target.value = v;
-                    setValue("uf", v, { shouldValidate: true });
-                  }}
-                />
-              ) : (
-                <p className="text-sm py-2.5">{aluno.uf}</p>
-              )}
-            </Field>
-            <Field
-              label="Logradouro (rua/avenida)"
-              error={errors.logradouro?.message}
-              className="md:col-span-2"
-            >
+            <Field label="Logradouro / Rua" error={errors.logradouro?.message} className="md:col-span-2">
               {editing ? (
                 <Input className="h-10" {...register("logradouro")} />
               ) : (
@@ -394,27 +476,32 @@ function AlunoDetalhe() {
                 <p className="text-sm py-2.5">{aluno.bairro}</p>
               )}
             </Field>
-            <Field label="Cidade" error={errors.cidade?.message} className="md:col-span-2">
-              {editing ? (
-                <Input className="h-10" {...register("cidade")} />
-              ) : (
-                <p className="text-sm py-2.5">{aluno.cidade}</p>
-              )}
-            </Field>
-            <Field label="Nome do pai" error={errors.nomePai?.message}>
-              {editing ? (
-                <Input className="h-10" {...register("nomePai")} />
-              ) : (
-                <p className="text-sm py-2.5">{aluno.nomePai || "—"}</p>
-              )}
-            </Field>
-            <Field label="Nome da mãe" error={errors.nomeMae?.message}>
-              {editing ? (
-                <Input className="h-10" {...register("nomeMae")} />
-              ) : (
-                <p className="text-sm py-2.5">{aluno.nomeMae || "—"}</p>
-              )}
-            </Field>
+            <div className="grid grid-cols-3 gap-2">
+              <Field label="Cidade" error={errors.cidade?.message} className="col-span-2">
+                {editing ? (
+                  <Input className="h-10" {...register("cidade")} />
+                ) : (
+                  <p className="text-sm py-2.5">{aluno.cidade}</p>
+                )}
+              </Field>
+              <Field label="UF" error={errors.uf?.message}>
+                {editing ? (
+                  <Input
+                    className="h-10"
+                    maxLength={2}
+                    placeholder="UF"
+                    {...register("uf")}
+                    onChange={(e) => {
+                      const upper = e.target.value.toUpperCase();
+                      e.target.value = upper;
+                      setValue("uf", upper, { shouldValidate: true });
+                    }}
+                  />
+                ) : (
+                  <p className="text-sm py-2.5">{aluno.uf}</p>
+                )}
+              </Field>
+            </div>
           </div>
         </section>
 
@@ -432,6 +519,7 @@ function AlunoDetalhe() {
               {editing ? (
                 <Input
                   className="h-10"
+                  placeholder="000.000.000-00"
                   {...register("cpfResponsavel")}
                   onChange={(e) => {
                     const masked = maskCPF(e.target.value);
@@ -440,14 +528,14 @@ function AlunoDetalhe() {
                   }}
                 />
               ) : (
-                <p className="text-sm py-2.5">{aluno.cpfResponsavel ? maskCPF(aluno.cpfResponsavel) : ""}</p>
+                <p className="text-sm py-2.5">{maskCPF(aluno.cpfResponsavel)}</p>
               )}
             </Field>
             <Field label="Telefone do responsável" error={errors.telefoneResponsavel?.message}>
               {editing ? (
                 <Input
                   className="h-10"
-                  placeholder="(11) 99999-9999"
+                  placeholder="(00) 00000-0000"
                   {...register("telefoneResponsavel")}
                   onChange={(e) => {
                     const masked = maskPhone(e.target.value);
@@ -456,7 +544,7 @@ function AlunoDetalhe() {
                   }}
                 />
               ) : (
-                <p className="text-sm py-2.5">{aluno.telefoneResponsavel ? maskPhone(aluno.telefoneResponsavel) : ""}</p>
+                <p className="text-sm py-2.5">{maskPhone(aluno.telefoneResponsavel)}</p>
               )}
             </Field>
             <Field label="E-mail do responsável" error={errors.email?.message}>

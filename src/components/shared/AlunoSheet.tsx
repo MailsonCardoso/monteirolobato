@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,8 +23,9 @@ import { StatusBadge } from "@/components/shared/Primitives";
 import type { Aluno } from "@/lib/mock-data";
 import { turmas, anosLetivos } from "@/lib/mock-data";
 import { maskCPF, maskDate, maskPhone, fmtDate } from "@/lib/format";
-import { checkCpfExists } from "@/lib/api/alunos";
+import { checkCpfExists, uploadFotoAluno } from "@/lib/api/alunos";
 import { buscarCep, formatarCep } from "@/lib/format";
+import { FotoUpload, AlunoAvatar } from "@/components/shared/FotoUpload";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -127,8 +128,16 @@ export function AlunoSheet({
 }) {
   const isCreate = mode === "create";
   const [editing, setEditing] = useState(mode === "edit" || isCreate);
+  const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(aluno?.fotoUrl || aluno?.foto || null);
 
   const current = aluno ?? emptyAluno;
+
+  useEffect(() => {
+    setEditing(mode === "edit" || mode === "create");
+    setFotoPreview(aluno?.fotoUrl || aluno?.foto || null);
+    setFotoFile(null);
+  }, [aluno, mode, open]);
 
   const {
     register,
@@ -139,6 +148,7 @@ export function AlunoSheet({
     setError,
     clearErrors,
     reset,
+    watch,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     values: isCreate
@@ -164,16 +174,28 @@ export function AlunoSheet({
         situacao: "em_dia",
         cpf: data.cpf || "",
         cpfResponsavel: data.cpfResponsavel || "",
+        foto: fotoPreview,
       };
       await onSave(novo);
       onOpenChange(false);
     } else {
-      await onSave({ ...current, ...data });
+      let updatedAluno: Aluno = { ...current, ...data };
+      if (fotoFile) {
+        try {
+          const res = await uploadFotoAluno(current.id, fotoFile);
+          updatedAluno = { ...updatedAluno, foto: res.foto, fotoUrl: res.fotoUrl };
+        } catch {
+          toast.error("Falha ao salvar foto do aluno");
+        }
+      } else if (!fotoPreview && current.foto) {
+        updatedAluno = { ...updatedAluno, foto: null, fotoUrl: null };
+      }
+      await onSave(updatedAluno);
       setEditing(false);
     }
   };
 
-const handleCepBlur = async (value: string) => {
+  const handleCepBlur = async (value: string) => {
     const cepFormatado = formatarCep(value);
     if (cepFormatado.length !== 9) return;
 
@@ -202,7 +224,38 @@ const handleCepBlur = async (value: string) => {
           </SheetDescription>
         </SheetHeader>
 
-        <form id="aluno-sheet-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
+        {/* Topo com Foto / Avatar */}
+        <div className="flex items-center gap-4 py-4 my-2 border-y border-border">
+          {editing ? (
+            <FotoUpload
+              value={fotoPreview}
+              onChange={(file, preview) => {
+                setFotoFile(file);
+                setFotoPreview(preview);
+              }}
+              nome={current.nome || watch("nome")}
+              size="md"
+            />
+          ) : (
+            <AlunoAvatar
+              foto={current.fotoUrl || current.foto}
+              nome={current.nome}
+              size="lg"
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-base truncate">{current.nome || "Novo aluno"}</h3>
+            <p className="text-xs text-muted-foreground">{current.turma || "Sem turma definida"}</p>
+            {current.situacao && (
+              <div className="mt-1.5 flex gap-1.5">
+                <StatusBadge status={current.status} />
+                <StatusBadge status={current.situacao} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <form id="aluno-sheet-form" onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-5">
           <section className="bg-muted/30 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-primary inline-block" />
@@ -351,47 +404,48 @@ const handleCepBlur = async (value: string) => {
                   <p className={viewCls}>{current.bairro}</p>
                 )}
               </Field>
-            <Field label="Cidade" error={errors.cidade?.message} className="sm:col-span-2">
-              {editing ? (
-                <Input className="h-10" {...register("cidade")} />
-              ) : (
-                <p className={viewCls}>{current.cidade}</p>
-              )}
-            </Field>
-            <Field label="Nome do pai" error={errors.nomePai?.message}>
-              {editing ? (
-                <Input className="h-10" {...register("nomePai")} />
-              ) : (
-                <p className={viewCls}>{current.nomePai || "—"}</p>
-              )}
-            </Field>
-            <Field label="Nome da mãe" error={errors.nomeMae?.message}>
-              {editing ? (
-                <Input className="h-10" {...register("nomeMae")} />
-              ) : (
-                <p className={viewCls}>{current.nomeMae || "—"}</p>
-              )}
-            </Field>
-            <Field label="Ano letivo" error={errors.anoLetivo?.message}>
-              {editing ? (
-                <select
-                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm outline-none focus:border-ring transition-colors"
-                  {...register("anoLetivo")}
-                >
-                  <option value="">Selecione...</option>
-                  {anosLetivos.map((ano) => (
-                    <option key={ano} value={ano}>
-                      {ano}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <p className={viewCls}>{current.anoLetivo || "—"}</p>
-              )}
-            </Field>
-          </div>
-        </section>
-        <section className="bg-muted/30 rounded-lg p-4 space-y-3">
+              <Field label="Cidade" error={errors.cidade?.message} className="sm:col-span-2">
+                {editing ? (
+                  <Input className="h-10" {...register("cidade")} />
+                ) : (
+                  <p className={viewCls}>{current.cidade}</p>
+                )}
+              </Field>
+              <Field label="Nome do pai" error={errors.nomePai?.message}>
+                {editing ? (
+                  <Input className="h-10" {...register("nomePai")} />
+                ) : (
+                  <p className={viewCls}>{current.nomePai || "—"}</p>
+                )}
+              </Field>
+              <Field label="Nome da mãe" error={errors.nomeMae?.message}>
+                {editing ? (
+                  <Input className="h-10" {...register("nomeMae")} />
+                ) : (
+                  <p className={viewCls}>{current.nomeMae || "—"}</p>
+                )}
+              </Field>
+              <Field label="Ano letivo" error={errors.anoLetivo?.message}>
+                {editing ? (
+                  <select
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm outline-none focus:border-ring transition-colors"
+                    {...register("anoLetivo")}
+                  >
+                    <option value="">Selecione...</option>
+                    {anosLetivos.map((ano) => (
+                      <option key={ano} value={ano}>
+                        {ano}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className={viewCls}>{current.anoLetivo || "—"}</p>
+                )}
+              </Field>
+            </div>
+          </section>
+
+          <section className="bg-muted/30 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-primary inline-block" />
               Responsável financeiro
@@ -514,14 +568,14 @@ const handleCepBlur = async (value: string) => {
               </Field>
               <Field label="Valor mensalidade (R$)" error={errors.valorMensalidade?.message}>
                 {editing ? (
-                    <Input
-                      className="h-10"
-                      placeholder="0,00"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      {...register("valorMensalidade", { valueAsNumber: true })}
-                    />
+                  <Input
+                    className="h-10"
+                    placeholder="0,00"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    {...register("valorMensalidade", { valueAsNumber: true })}
+                  />
                 ) : (
                   <p className={viewCls}>
                     {current.valorMensalidade !== null && current.valorMensalidade !== undefined

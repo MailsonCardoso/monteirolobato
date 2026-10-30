@@ -23,6 +23,11 @@ function alunoFromApi(raw: Record<string, unknown>): Aluno {
   mapped.valorMensalidade = Number(mapped.valorMensalidade) || 0;
   mapped.diaVencimento = Number(mapped.diaVencimento) || 0;
   mapped.situacao = mapped.situacao as "em_dia" | "em_atraso" | "inadimplente";
+  if (!mapped.fotoUrl && mapped.foto && typeof mapped.foto === "string") {
+    mapped.fotoUrl = mapped.foto.startsWith("http")
+      ? mapped.foto
+      : `https://api2.platformx.com.br/storage/${mapped.foto}`;
+  }
   return mapped as unknown as Aluno;
 }
 
@@ -31,6 +36,7 @@ function alunoToApi(aluno: Record<string, unknown>): Record<string, unknown> {
   delete clean.id;
   delete clean.createdAt;
   delete clean.updatedAt;
+  delete clean.fotoUrl;
   return mapKeys(clean, toSnake);
 }
 
@@ -52,6 +58,21 @@ export async function createAluno(aluno: Partial<Aluno>): Promise<Aluno> {
 export async function updateAluno(id: string, aluno: Partial<Aluno>): Promise<Aluno> {
   const { data } = await api.put(`/alunos/${id}`, alunoToApi(aluno));
   return alunoFromApi(data as Record<string, unknown>);
+}
+
+export async function uploadFotoAluno(
+  id: string,
+  fileOrBase64: File | string,
+): Promise<{ foto: string; fotoUrl: string }> {
+  if (fileOrBase64 instanceof File) {
+    const formData = new FormData();
+    formData.append("foto", fileOrBase64);
+    const { data } = await api.post(`/alunos/${id}/foto`, formData);
+    return { foto: data.foto, fotoUrl: data.foto_url };
+  } else {
+    const { data } = await api.post(`/alunos/${id}/foto`, { foto: fileOrBase64 });
+    return { foto: data.foto, fotoUrl: data.foto_url };
+  }
 }
 
 export async function checkCpfExists(cpf: string, ignoreId?: string): Promise<boolean> {

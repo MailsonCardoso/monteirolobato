@@ -71,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/financeiro', [App\Http\Controllers\DashboardController::class, 'financeiro']);
     Route::get('/dashboard/mensalidades', [App\Http\Controllers\DashboardController::class, 'mensalidades']);
     Route::apiResource('alunos', AlunoController::class);
+    Route::post('/alunos/{aluno}/foto', [AlunoController::class, 'uploadFoto']);
     Route::get('/alunos/{aluno}/extrato', [AlunoController::class, 'extrato']);
     Route::post('/mensalidades/gerar-proximo-mes', [MensalidadeController::class, 'gerarProximoMes']);
     Route::post('/mensalidades/sincronizar-fluxo-caixa', [MensalidadeController::class, 'sincronizarFluxoCaixa']);

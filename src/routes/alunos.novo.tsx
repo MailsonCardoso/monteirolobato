@@ -1,19 +1,20 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, Save } from "lucide-react";
-import { Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/shared/Primitives";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { turmas, anosLetivos } from "@/lib/mock-data";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { maskCPF, maskDate, maskPhone, formatarCep, buscarCep } from "@/lib/format";
+import { maskCPF, maskPhone, formatarCep, buscarCep } from "@/lib/format";
 import { CurrencyInput } from "@/components/shared/CurrencyInput";
-import { createAluno, checkCpfExists } from "@/lib/api/alunos";
+import { createAluno, checkCpfExists, uploadFotoAluno } from "@/lib/api/alunos";
 import { cadastrarAssociado } from "@/lib/api/associado";
+import { FotoUpload } from "@/components/shared/FotoUpload";
 
 const schema = z.object({
   nome: z.string().min(3, "Nome muito curto").max(120),
@@ -68,6 +69,9 @@ function Field({
 
 function NovoAluno() {
   const navigate = useNavigate();
+  const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -90,7 +94,16 @@ function NovoAluno() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await createAluno({ ...data, situacao: "em_dia" });
+      const novoAluno = await createAluno({ ...data, situacao: "em_dia" });
+
+      if (fotoFile) {
+        try {
+          await uploadFotoAluno(novoAluno.id, fotoFile);
+        } catch (fotoErr) {
+          console.error("Erro ao enviar foto:", fotoErr);
+          toast.error("Aluno salvo, mas ocorreu uma falha ao enviar a foto.");
+        }
+      }
 
       const cpfLimpo = data.cpfResponsavel.replace(/\D/g, "");
       try {
@@ -154,7 +167,24 @@ function NovoAluno() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-card rounded-xl border border-border p-6 space-y-6"
       >
-        <section>
+        <section className="space-y-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-border">
+            <FotoUpload
+              value={fotoPreview}
+              onChange={(file, preview) => {
+                setFotoFile(file);
+                setFotoPreview(preview);
+              }}
+              nome={watch("nome")}
+            />
+            <div className="text-center sm:text-left">
+              <h4 className="text-base font-semibold">Foto do aluno</h4>
+              <p className="text-xs text-muted-foreground mt-0.5 max-w-sm">
+                Selecione uma imagem ou tire uma foto com a câmera. A imagem é comprimida automaticamente para carregamento rápido.
+              </p>
+            </div>
+          </div>
+
           <h3 className="font-semibold mb-4">Dados do aluno</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="Nome completo" error={errors.nome?.message} className="md:col-span-2">
@@ -216,6 +246,27 @@ function NovoAluno() {
                 }}
               />
             </Field>
+            <Field label="E-mail" error={errors.email?.message} className="md:col-span-2">
+              <Input type="email" className="h-10" {...register("email")} />
+            </Field>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="font-semibold mb-4">Filiação</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="Nome da mãe" error={errors.nomeMae?.message}>
+              <Input className="h-10" placeholder="Nome completo da mãe" {...register("nomeMae")} />
+            </Field>
+            <Field label="Nome do pai" error={errors.nomePai?.message}>
+              <Input className="h-10" placeholder="Nome completo do pai" {...register("nomePai")} />
+            </Field>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="font-semibold mb-4">Endereço</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Field label="CEP" error={errors.cep?.message}>
               <Input
                 className="h-10"
@@ -229,27 +280,7 @@ function NovoAluno() {
                 onBlur={(e) => handleCepBlur(e.target.value)}
               />
             </Field>
-            <Field label="UF" error={errors.uf?.message}>
-              <Input
-                className="h-10 uppercase"
-                placeholder="SP"
-                maxLength={2}
-                {...register("uf")}
-                onChange={(e) => {
-                  const v = e.target.value
-                    .toUpperCase()
-                    .replace(/[^A-Z]/g, "")
-                    .slice(0, 2);
-                  e.target.value = v;
-                  setValue("uf", v, { shouldValidate: true });
-                }}
-              />
-            </Field>
-            <Field
-              label="Logradouro (rua/avenida)"
-              error={errors.logradouro?.message}
-              className="md:col-span-2"
-            >
+            <Field label="Logradouro / Rua" error={errors.logradouro?.message} className="md:col-span-2">
               <Input className="h-10" {...register("logradouro")} />
             </Field>
             <Field label="Número" error={errors.numero?.message}>
@@ -258,15 +289,24 @@ function NovoAluno() {
             <Field label="Bairro" error={errors.bairro?.message}>
               <Input className="h-10" {...register("bairro")} />
             </Field>
-            <Field label="Cidade" error={errors.cidade?.message} className="md:col-span-2">
-              <Input className="h-10" {...register("cidade")} />
-            </Field>
-            <Field label="Nome do pai" error={errors.nomePai?.message}>
-              <Input className="h-10" {...register("nomePai")} />
-            </Field>
-            <Field label="Nome da mãe" error={errors.nomeMae?.message}>
-              <Input className="h-10" {...register("nomeMae")} />
-            </Field>
+            <div className="grid grid-cols-3 gap-2">
+              <Field label="Cidade" error={errors.cidade?.message} className="col-span-2">
+                <Input className="h-10" {...register("cidade")} />
+              </Field>
+              <Field label="UF" error={errors.uf?.message}>
+                <Input
+                  className="h-10"
+                  maxLength={2}
+                  placeholder="UF"
+                  {...register("uf")}
+                  onChange={(e) => {
+                    const upper = e.target.value.toUpperCase();
+                    e.target.value = upper;
+                    setValue("uf", upper, { shouldValidate: true });
+                  }}
+                />
+              </Field>
+            </div>
           </div>
         </section>
 

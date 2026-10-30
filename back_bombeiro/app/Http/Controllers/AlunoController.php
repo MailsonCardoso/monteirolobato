@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class AlunoController extends Controller
 {
@@ -57,7 +58,24 @@ class AlunoController extends Controller
             'valor_mensalidade' => 'nullable|numeric|min:0',
             'dia_vencimento' => 'nullable|integer|min:1|max:31',
             'ano_letivo' => 'nullable|string|max:4',
+            'foto' => 'nullable',
         ]);
+
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('alunos/fotos', 'public');
+        } elseif ($request->filled('foto') && str_starts_with($request->input('foto'), 'data:image')) {
+            $data = $request->input('foto');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $type = strtolower($type[1]);
+                $data = base64_decode($data);
+                if ($data !== false) {
+                    $filename = 'alunos/fotos/' . uniqid('aluno_', true) . '.' . $type;
+                    Storage::disk('public')->put($filename, $data);
+                    $validated['foto'] = $filename;
+                }
+            }
+        }
 
         $aluno = DB::transaction(function () use ($validated) {
             $aluno = Aluno::create($validated);
@@ -144,13 +162,81 @@ class AlunoController extends Controller
             'valor_mensalidade' => 'nullable|numeric|min:0',
             'dia_vencimento' => 'nullable|integer|min:1|max:31',
             'ano_letivo' => 'nullable|string|max:4',
+            'foto' => 'nullable',
         ]);
+
+        if ($request->hasFile('foto')) {
+            if ($aluno->foto) {
+                Storage::disk('public')->delete($aluno->foto);
+            }
+            $validated['foto'] = $request->file('foto')->store('alunos/fotos', 'public');
+        } elseif ($request->has('remover_foto') && $request->boolean('remover_foto')) {
+            if ($aluno->foto) {
+                Storage::disk('public')->delete($aluno->foto);
+            }
+            $validated['foto'] = null;
+        } elseif ($request->filled('foto') && str_starts_with($request->input('foto'), 'data:image')) {
+            if ($aluno->foto) {
+                Storage::disk('public')->delete($aluno->foto);
+            }
+            $data = $request->input('foto');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $type = strtolower($type[1]);
+                $data = base64_decode($data);
+                if ($data !== false) {
+                    $filename = 'alunos/fotos/' . uniqid('aluno_', true) . '.' . $type;
+                    Storage::disk('public')->put($filename, $data);
+                    $validated['foto'] = $filename;
+                }
+            }
+        }
 
         $cpfResponsavelAnterior = $aluno->cpf_responsavel;
 
         $aluno->update($validated);
         $this->sincronizarAssociado($aluno, $cpfResponsavelAnterior);
         return $aluno;
+    }
+
+    public function uploadFoto(Request $request, Aluno $aluno): JsonResponse
+    {
+        $request->validate([
+            'foto' => 'required',
+        ]);
+
+        if ($aluno->foto) {
+            Storage::disk('public')->delete($aluno->foto);
+        }
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('alunos/fotos', 'public');
+        } elseif ($request->filled('foto') && str_starts_with($request->input('foto'), 'data:image')) {
+            $data = $request->input('foto');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $type = strtolower($type[1]);
+                $data = base64_decode($data);
+                if ($data !== false) {
+                    $path = 'alunos/fotos/' . uniqid('aluno_', true) . '.' . $type;
+                    Storage::disk('public')->put($path, $data);
+                } else {
+                    return response()->json(['message' => 'Falha ao decodificar imagem'], 422);
+                }
+            } else {
+                return response()->json(['message' => 'Formato de imagem inválido'], 422);
+            }
+        } else {
+            return response()->json(['message' => 'Nenhuma imagem enviada'], 422);
+        }
+
+        $aluno->update(['foto' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'foto' => $aluno->foto,
+            'foto_url' => $aluno->foto_url,
+        ]);
     }
 
     public function extrato(Aluno $aluno): JsonResponse
