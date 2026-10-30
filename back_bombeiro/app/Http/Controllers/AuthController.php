@@ -13,15 +13,26 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|string',
             'password' => 'required',
         ]);
 
-        $email = strtolower(trim($request->email));
-        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+        $input = trim($request->email);
+        $email = strtolower($input);
+        $cpfLimpo = preg_replace('/\D/', '', $input);
+
+        $user = User::where(function ($q) use ($email, $cpfLimpo) {
+            $q->whereRaw('LOWER(email) = ?', [$email]);
+            if ($email === 'admin') {
+                $q->orWhere('email', 'admin@escola.com');
+            }
+            if (strlen($cpfLimpo) >= 11) {
+                $q->orWhere('cpf', $cpfLimpo);
+            }
+        })->first();
 
         // Se for o admin e não existir ainda no banco, cria automaticamente
-        if (!$user && $email === 'admin@escola.com' && $request->password === 'senha123') {
+        if (!$user && ($email === 'admin@escola.com' || $email === 'admin') && $request->password === 'senha123') {
             $user = User::create([
                 'name' => 'Administrador',
                 'email' => 'admin@escola.com',
@@ -29,16 +40,6 @@ class AuthController extends Controller
                 'role' => 'admin',
                 'must_change_password' => false,
             ]);
-        }
-
-        $passwordValid = false;
-        if ($user) {
-            $passwordValid = Hash::check($request->password, $user->password);
-            if (!$passwordValid && ($user->password === $request->password || password_verify($request->password, $user->password))) {
-                $user->password = $request->password;
-                $user->save();
-                $passwordValid = true;
-            }
         }
 
         if (!$user || !$passwordValid) {

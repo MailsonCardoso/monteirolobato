@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const schema = z.object({
-  email: z.string().email("E-mail inválido"),
+  email: z.string().min(1, "Informe o e-mail, usuário ou CPF"),
   senha: z.string().min(6, "Mínimo 6 caracteres"),
   lembrar: z.boolean().optional(),
 });
@@ -99,8 +99,8 @@ function Login() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" className="h-11" {...register("email")} />
+              <Label htmlFor="email">E-mail ou Usuário</Label>
+              <Input id="email" type="text" placeholder="admin@escola.com ou admin" className="h-11" {...register("email")} />
               {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">

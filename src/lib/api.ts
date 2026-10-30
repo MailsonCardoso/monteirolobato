@@ -12,6 +12,7 @@ api.interceptors.request.use((config) => {
   const url = config.url ?? "";
   const method = config.method ?? "";
   const isPublic =
+    url === "/auth/login" ||
     url === "/associado/login" ||
     (url === "/associado" && method === "post");
 
