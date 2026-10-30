@@ -119,7 +119,9 @@ return [
     */
 
     'maintenance' => [
-        'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
+        'driver' => in_array(env('APP_MAINTENANCE_DRIVER', 'file'), ['file', 'cache'])
+            ? env('APP_MAINTENANCE_DRIVER', 'file')
+            : 'file',
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
