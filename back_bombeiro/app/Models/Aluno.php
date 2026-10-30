@@ -36,7 +36,7 @@ class Aluno extends Model
         if (str_starts_with($this->foto, 'http://') || str_starts_with($this->foto, 'https://')) {
             return $this->foto;
         }
-        return url('storage/' . $this->foto);
+        return url('api/alunos/' . $this->id . '/foto');
     }
 
     public function mensalidades(): HasMany

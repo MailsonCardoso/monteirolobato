@@ -26,7 +26,7 @@ function alunoFromApi(raw: Record<string, unknown>): Aluno {
   if (!mapped.fotoUrl && mapped.foto && typeof mapped.foto === "string") {
     mapped.fotoUrl = mapped.foto.startsWith("http")
       ? mapped.foto
-      : `https://api2.platformx.com.br/storage/${mapped.foto}`;
+      : `https://api2.platformx.com.br/api/alunos/${mapped.id}/foto`;
   }
   return mapped as unknown as Aluno;
 }
@@ -73,6 +73,10 @@ export async function uploadFotoAluno(
     const { data } = await api.post(`/alunos/${id}/foto`, { foto: fileOrBase64 });
     return { foto: data.foto, fotoUrl: data.foto_url };
   }
+}
+
+export async function deleteFotoAluno(id: string): Promise<void> {
+  await api.delete(`/alunos/${id}/foto`);
 }
 
 export async function checkCpfExists(cpf: string, ignoreId?: string): Promise<boolean> {

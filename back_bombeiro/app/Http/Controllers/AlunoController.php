@@ -239,6 +239,73 @@ class AlunoController extends Controller
         ]);
     }
 
+    public function showFoto(Aluno $aluno, Request $request)
+    {
+        if (!$aluno->foto) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aluno não possui foto cadastrada.',
+                    'foto' => null,
+                    'foto_url' => null,
+                ], 404);
+            }
+
+            $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+            return response($svg, 200, ['Content-Type' => 'image/svg+xml']);
+        }
+
+        if (str_starts_with($aluno->foto, 'http://') || str_starts_with($aluno->foto, 'https://')) {
+            if ($request->wantsJson() && !$request->has('raw')) {
+                return response()->json([
+                    'success' => true,
+                    'foto' => $aluno->foto,
+                    'foto_url' => $aluno->foto,
+                ]);
+            }
+            return redirect($aluno->foto);
+        }
+
+        if (Storage::disk('public')->exists($aluno->foto)) {
+            if ($request->wantsJson() && !$request->has('raw')) {
+                return response()->json([
+                    'success' => true,
+                    'foto' => $aluno->foto,
+                    'foto_url' => $aluno->foto_url,
+                ]);
+            }
+
+            return Storage::disk('public')->response($aluno->foto);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Arquivo de foto não encontrado no storage.',
+                'foto' => $aluno->foto,
+                'foto_url' => null,
+            ], 404);
+        }
+
+        $svgErr = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+        return response($svgErr, 404, ['Content-Type' => 'image/svg+xml']);
+    }
+
+    public function deleteFoto(Aluno $aluno): JsonResponse
+    {
+        if ($aluno->foto) {
+            Storage::disk('public')->delete($aluno->foto);
+            $aluno->update(['foto' => null]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto removida com sucesso.',
+            'foto' => null,
+            'foto_url' => null,
+        ]);
+    }
+
     public function extrato(Aluno $aluno): JsonResponse
     {
         $mensalidades = $aluno->mensalidades()->orderBy('created_at', 'desc')->get();

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 // Rotas públicas
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::get('/alunos/check-cpf/{cpf}', [AlunoController::class, 'checkCpf']);
+Route::get('/alunos/{aluno}/foto', [AlunoController::class, 'showFoto']);
 Route::get('/noticias/publicas', [App\Http\Controllers\NoticiaController::class, 'publicas']);
 Route::get('/ouvidoria', [App\Http\Controllers\OuvidoriaController::class, 'index']);
 Route::post('/ouvidoria', [App\Http\Controllers\OuvidoriaController::class, 'store']);
@@ -72,6 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/mensalidades', [App\Http\Controllers\DashboardController::class, 'mensalidades']);
     Route::apiResource('alunos', AlunoController::class);
     Route::post('/alunos/{aluno}/foto', [AlunoController::class, 'uploadFoto']);
+    Route::delete('/alunos/{aluno}/foto', [AlunoController::class, 'deleteFoto']);
     Route::get('/alunos/{aluno}/extrato', [AlunoController::class, 'extrato']);
     Route::post('/mensalidades/gerar-proximo-mes', [MensalidadeController::class, 'gerarProximoMes']);
     Route::post('/mensalidades/sincronizar-fluxo-caixa', [MensalidadeController::class, 'sincronizarFluxoCaixa']);
