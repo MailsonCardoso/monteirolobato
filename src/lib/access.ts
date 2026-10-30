@@ -6,7 +6,6 @@ const ROUTES: Record<Perfil, string[]> = {
     "/alunos",
     "/gestao-associados",
     "/gestao-inventario",
-    "/gestao-noticias",
     "/gestao-ouvidoria",
     "/perfil",
     "/trocar-senha",

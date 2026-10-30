@@ -11,10 +11,6 @@ import {
   ChevronLeft,
   LogOut,
   MessageCircle,
-  Newspaper,
-  Tags,
-  FileText,
-  ScrollText,
   Package,
   TrendingUp,
   TrendingDown,
@@ -57,7 +53,6 @@ const sections: NavSection[] = [
     items: [
       { to: "/alunos", label: "Alunos", icon: Users, secretaria: true },
       { to: "/gestao-associados", label: "Associados", icon: Users, secretaria: true },
-      { to: "/gestao-categorias", label: "Categorias", icon: Tags },
     ],
   },
   {
@@ -65,10 +60,7 @@ const sections: NavSection[] = [
     secretaria: true,
     items: [
       { to: "/gestao-inventario", label: "Inventário", icon: Package, secretaria: true },
-      { to: "/gestao-noticias", label: "Notícias", icon: Newspaper, secretaria: true },
       { to: "/gestao-ouvidoria", label: "Ouvidoria", icon: MessageCircle, secretaria: true },
-      { to: "/gestao-documentos", label: "Documentos", icon: FileText },
-      { to: "/gestao-estatuto", label: "Estatuto", icon: ScrollText },
       { to: "/gestao-auditoria", label: "Auditoria", icon: ShieldCheck },
       { to: "/gestao-logs-acesso", label: "Logs de Acesso", icon: Activity },
       { to: "/gestao-funcionarios", label: "Funcionários", icon: Users },
