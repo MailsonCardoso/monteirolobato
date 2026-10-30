@@ -48,16 +48,21 @@ class MercadoPagoService
         $lastName = $parts[1] ?? $firstName;
 
         $payer = [
-            'email' => $dto->emailPagador,
+            'email' => !empty($dto->emailPagador) && filter_var($dto->emailPagador, FILTER_VALIDATE_EMAIL)
+                ? $dto->emailPagador
+                : 'associado@monteirolobato.com.br',
             'first_name' => $firstName,
             'last_name' => $lastName,
         ];
 
-        if (!empty($dto->cpfPagador)) {
+        $cpfLimpo = preg_replace('/\D/', '', (string) $dto->cpfPagador);
+        if (!empty($cpfLimpo) && $this->validarCpf($cpfLimpo)) {
             $payer['identification'] = [
                 'type' => 'CPF',
-                'number' => $dto->cpfPagador,
+                'number' => $cpfLimpo,
             ];
+        } elseif ($dto->formaPagamento === 'bolbradesco') {
+            throw new \RuntimeException('CPF do responsável inválido para emissão de boleto.');
         }
 
         if ($dto->formaPagamento === 'bolbradesco') {
@@ -136,18 +141,26 @@ class MercadoPagoService
 
     public function criarPreference(GerarCobrancaDTO $dto): array
     {
+        $payer = [
+            'email' => !empty($dto->emailPagador) && filter_var($dto->emailPagador, FILTER_VALIDATE_EMAIL)
+                ? $dto->emailPagador
+                : 'associado@monteirolobato.com.br',
+            'name' => $dto->nomePagador,
+        ];
+
+        $cpfLimpo = preg_replace('/\D/', '', (string) $dto->cpfPagador);
+        if (!empty($cpfLimpo) && $this->validarCpf($cpfLimpo)) {
+            $payer['identification'] = [
+                'type' => 'CPF',
+                'number' => $cpfLimpo,
+            ];
+        }
+
         $payload = [
             'external_reference' => $dto->externalReference,
             'notification_url' => $dto->notificationUrl,
             'statement_descriptor' => 'ESCOLA BOMBEIRO',
-            'payer' => [
-                'email' => $dto->emailPagador,
-                'name' => $dto->nomePagador,
-                'identification' => [
-                    'type' => 'CPF',
-                    'number' => $dto->cpfPagador,
-                ],
-            ],
+            'payer' => $payer,
             'payment_methods' => [
                 'excluded_payment_types' => [
                     ['id' => 'credit_card'],
@@ -241,5 +254,28 @@ class MercadoPagoService
             'status' => $response->status(),
             'body' => $response->json(),
         ]);
+    }
+
+    /**
+     * Valida os dígitos verificadores de um CPF brasileiro (módulo 11).
+     */
+    private function validarCpf(string $cpf): bool
+    {
+        $cpf = preg_replace('/\D/', '', $cpf);
+        if (strlen($cpf) !== 11 || preg_match('/^(\d)\1{10}$/', $cpf)) {
+            return false;
+        }
+
+        for ($t = 9; $t < 11; $t++) {
+            for ($d = 0, $c = 0; $c < $t; $c++) {
+                $d += (int) $cpf[$c] * (($t + 1) - $c);
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ((int) $cpf[$c] !== $d) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
