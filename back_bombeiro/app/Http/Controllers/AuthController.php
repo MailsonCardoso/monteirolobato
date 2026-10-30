@@ -42,6 +42,16 @@ class AuthController extends Controller
             ]);
         }
 
+        $passwordValid = false;
+        if ($user) {
+            $passwordValid = Hash::check($request->password, $user->password);
+            if (!$passwordValid && ($user->password === $request->password || password_verify($request->password, $user->password))) {
+                $user->password = $request->password;
+                $user->save();
+                $passwordValid = true;
+            }
+        }
+
         if (!$user || !$passwordValid) {
             throw ValidationException::withMessages([
                 'email' => ['Credenciais inválidas.'],
