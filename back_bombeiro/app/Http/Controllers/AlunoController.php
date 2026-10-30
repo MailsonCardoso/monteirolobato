@@ -201,42 +201,66 @@ class AlunoController extends Controller
 
     public function uploadFoto(Request $request, Aluno $aluno): JsonResponse
     {
-        $request->validate([
-            'foto' => 'required',
-        ]);
+        try {
+            $request->validate([
+                'foto' => 'required',
+            ]);
 
-        if ($aluno->foto) {
-            Storage::disk('public')->delete($aluno->foto);
-        }
-
-        if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('alunos/fotos', 'public');
-        } elseif ($request->filled('foto') && str_starts_with($request->input('foto'), 'data:image')) {
-            $data = $request->input('foto');
-            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                $data = substr($data, strpos($data, ',') + 1);
-                $type = strtolower($type[1]);
-                $data = base64_decode($data);
-                if ($data !== false) {
-                    $path = 'alunos/fotos/' . uniqid('aluno_', true) . '.' . $type;
-                    Storage::disk('public')->put($path, $data);
-                } else {
-                    return response()->json(['message' => 'Falha ao decodificar imagem'], 422);
-                }
-            } else {
-                return response()->json(['message' => 'Formato de imagem inválido'], 422);
+            if ($aluno->foto) {
+                try {
+                    Storage::disk('public')->delete($aluno->foto);
+                } catch (\Throwable $t) {}
             }
-        } else {
-            return response()->json(['message' => 'Nenhuma imagem enviada'], 422);
+
+            $path = null;
+
+            if ($request->hasFile('foto')) {
+                $path = $request->file('foto')->store('alunos/fotos', 'public');
+            } elseif ($request->filled('foto') && str_starts_with($request->input('foto'), 'data:image')) {
+                $data = $request->input('foto');
+                if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                    $data = substr($data, strpos($data, ',') + 1);
+                    $type = strtolower($type[1]);
+                    $data = base64_decode($data);
+                    if ($data !== false) {
+                        $path = 'alunos/fotos/' . uniqid('aluno_', true) . '.' . $type;
+                        Storage::disk('public')->put($path, $data);
+                    } else {
+                        return response()->json(['message' => 'Falha ao decodificar imagem'], 422);
+                    }
+                } else {
+                    return response()->json(['message' => 'Formato de imagem inválido'], 422);
+                }
+            } elseif ($request->filled('foto') && (str_starts_with($request->input('foto'), 'http://') || str_starts_with($request->input('foto'), 'https://'))) {
+                $path = $request->input('foto');
+            } else {
+                return response()->json(['message' => 'Nenhuma imagem válida enviada'], 422);
+            }
+
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('alunos', 'foto')) {
+                try {
+                    \Illuminate\Support\Facades\DB::statement("ALTER TABLE alunos ADD COLUMN foto VARCHAR(255) NULL AFTER sexo");
+                } catch (\Throwable $t) {}
+            }
+
+            $aluno->update(['foto' => $path]);
+
+            return response()->json([
+                'success' => true,
+                'foto' => $aluno->foto,
+                'foto_url' => $aluno->foto_url,
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Erro ao salvar foto do aluno: ' . $e->getMessage(), [
+                'aluno_id' => $aluno->id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao salvar foto: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $aluno->update(['foto' => $path]);
-
-        return response()->json([
-            'success' => true,
-            'foto' => $aluno->foto,
-            'foto_url' => $aluno->foto_url,
-        ]);
     }
 
     public function showFoto(Aluno $aluno, Request $request)
