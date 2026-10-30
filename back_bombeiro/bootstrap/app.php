@@ -7,7 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -26,3 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
             return response()->json(['message' => 'Unauthenticated.'], 401);
         });
     })->create();
+
+// Garante que o MaintenanceMode sempre use FileBasedMaintenanceMode sem estourar "Driver [database] not supported"
+$app->singleton(\Illuminate\Contracts\Foundation\MaintenanceMode::class, function () {
+    return new \Illuminate\Foundation\FileBasedMaintenanceMode();
+});
+
+return $app;
