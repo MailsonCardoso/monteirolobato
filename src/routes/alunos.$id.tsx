@@ -284,6 +284,7 @@ function AlunoDetalhe() {
           <AlunoAvatar
             foto={aluno.fotoUrl || aluno.foto}
             nome={aluno.nome}
+            subtitulo={aluno.turma ? `Turma: ${aluno.turma}${aluno.anoLetivo ? ` · Ano ${aluno.anoLetivo}` : ""}` : undefined}
             size="xl"
           />
         )}

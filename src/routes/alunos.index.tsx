@@ -284,6 +284,7 @@ function AlunosList() {
                       <AlunoAvatar
                         foto={a.fotoUrl || a.foto}
                         nome={a.nome}
+                        subtitulo={a.turma ? `Turma: ${a.turma}${a.anoLetivo ? ` · Ano ${a.anoLetivo}` : ""}` : undefined}
                         size="lg"
                         className="transition-transform group-hover:scale-105"
                       />
@@ -392,7 +393,12 @@ function AlunosList() {
                     <tr key={a.id} className="hover:bg-muted/30 transition-colors">
                       <td className="px-4 py-3 font-medium">
                         <div className="flex items-center gap-3">
-                          <AlunoAvatar foto={a.fotoUrl || a.foto} nome={a.nome} size="sm" />
+                          <AlunoAvatar
+                            foto={a.fotoUrl || a.foto}
+                            nome={a.nome}
+                            subtitulo={a.turma ? `Turma: ${a.turma}${a.anoLetivo ? ` · Ano ${a.anoLetivo}` : ""}` : undefined}
+                            size="sm"
+                          />
                           <Link
                             to="/alunos/$id"
                             params={{ id: a.id }}

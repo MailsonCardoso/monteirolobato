@@ -1,8 +1,15 @@
 import { useState, useRef } from "react";
-import { Camera, Trash2, Loader2, User } from "lucide-react";
+import { Camera, Trash2, Loader2, User, ZoomIn, ExternalLink } from "lucide-react";
 import { comprimirImagem } from "@/lib/image-compression";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface FotoUploadProps {
   value?: string | null;
@@ -153,14 +160,21 @@ export function FotoUpload({
 export function AlunoAvatar({
   foto,
   nome,
+  subtitulo,
   className,
   size = "md",
+  zoomable = true,
 }: {
   foto?: string | null;
   nome: string;
+  subtitulo?: string;
   className?: string;
   size?: "sm" | "md" | "lg" | "xl";
+  zoomable?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
   const iniciais = nome
     ? nome
         .trim()
@@ -177,24 +191,101 @@ export function AlunoAvatar({
     xl: "size-24 text-3xl",
   }[size];
 
-  if (foto) {
-    return (
+  if (foto && !imgError) {
+    const avatarElement = (
       <div
+        role={zoomable ? "button" : undefined}
+        tabIndex={zoomable ? 0 : undefined}
         className={cn(
-          "rounded-full overflow-hidden border border-border bg-muted/30 shrink-0 shadow-sm",
+          "rounded-full overflow-hidden border border-border bg-muted/30 shrink-0 shadow-sm relative group/avatar select-none",
           sizeClasses,
+          zoomable && "cursor-pointer hover:ring-2 hover:ring-primary/40 hover:shadow-md transition-all",
           className,
         )}
+        title={zoomable ? `Clique para ampliar a foto de ${nome}` : nome}
+        onClick={
+          zoomable
+            ? (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setOpen(true);
+              }
+            : undefined
+        }
+        onKeyDown={
+          zoomable
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setOpen(true);
+                }
+              }
+            : undefined
+        }
       >
         <img
           src={foto}
           alt={nome}
-          className="size-full object-cover"
-          onError={(e) => {
-            (e.currentTarget as HTMLElement).style.display = "none";
-          }}
+          className="size-full object-cover transition-transform duration-200 group-hover/avatar:scale-105"
+          onError={() => setImgError(true)}
         />
+        {zoomable && size !== "sm" && (
+          <div className="absolute inset-0 bg-black/35 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center text-white">
+            <ZoomIn className={cn(size === "xl" ? "size-6" : size === "lg" ? "size-5" : "size-4", "drop-shadow")} />
+          </div>
+        )}
       </div>
+    );
+
+    if (!zoomable) {
+      return avatarElement;
+    }
+
+    return (
+      <>
+        {avatarElement}
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            className="max-w-md sm:max-w-lg p-5 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DialogHeader className="mb-2">
+              <DialogTitle className="text-lg font-bold truncate">
+                {nome}
+              </DialogTitle>
+              {subtitulo && (
+                <DialogDescription className="text-xs text-muted-foreground">
+                  {subtitulo}
+                </DialogDescription>
+              )}
+            </DialogHeader>
+
+            <div className="relative rounded-xl overflow-hidden bg-muted/40 border border-border flex items-center justify-center max-h-[72vh] p-1 shadow-inner">
+              <img
+                src={foto}
+                alt={nome}
+                className="max-h-[68vh] w-auto max-w-full object-contain mx-auto rounded-lg shadow-sm"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-muted-foreground mt-2 pt-2 border-t border-border/60">
+              <span>Foto do aluno</span>
+              <a
+                href={foto}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium inline-flex items-center gap-1.5"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Abrir foto original
+                <ExternalLink className="size-3" />
+              </a>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
     );
   }
 

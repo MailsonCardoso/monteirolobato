@@ -240,6 +240,7 @@ export function AlunoSheet({
             <AlunoAvatar
               foto={current.fotoUrl || current.foto}
               nome={current.nome}
+              subtitulo={current.turma ? `Turma: ${current.turma}${current.anoLetivo ? ` · Ano ${current.anoLetivo}` : ""}` : undefined}
               size="lg"
             />
           )}
